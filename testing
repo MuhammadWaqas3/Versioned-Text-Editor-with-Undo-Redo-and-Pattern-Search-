@@ -1,0 +1,35 @@
+Weladsssssss asddddddddddddddddddddd asdadas===========
+
+This is a sample document to testsdasdasdasd asdas asd
+7
+asda the text editor functionality.
+
+Features:
+- Insert, delete, and replace text
+- Undo and redo operations
+- Pattern search using Rabin-Karp algorithm
+- Search and replace functionality
+- File loading and saving
+- Chunked buffer for efficient text storage
+
+Sample Content for Testing:
+----------------------------
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+Programming is fun!
+Data structures are important for efficient algorithms.
+The quick brown fox jumps over the lazy dog.
+
+Test Cases:
+1. Search for "the" - should find multiple occurrences
+2. Replace "the" with "a" - test search and replace
+3. Insert text at position 0 - test insertion
+4. Delete text from middle - test deletion
+5. Undo and redo operations - test command pattern
+
+Numbers for testing: 12345 67890
+Special characters: !@#$%^&*()_+-=[]{}|;:',.<>?/
+
+End of sample document.
