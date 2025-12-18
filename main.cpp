@@ -1,3 +1,4 @@
+// Waqas's Work
 #include "Buffer.h"
 #include "History.h"
 #include <iostream>
@@ -255,3 +256,83 @@ int main() {
     
     return 0;
 }
+
+//Ahsan's Advanced Search - Errors Yet to resolve 
+// #include <iostream>
+// #include "AdvancedSearch.h"
+
+// using namespace std;
+
+// int main()
+// {
+//     AdvancedSearchEngine engine;
+//     SearchHistory history;
+
+//     string text =
+//         "Data Structures and Algorithms are important.\n"
+//         "Data structures help organize data.\n"
+//         "Algorithms process data efficiently.\n"
+//         "Learning Data Structures is fun.";
+
+//     cout << "===== ORIGINAL TEXT =====\n";
+//     cout << text << endl;
+
+//     string pattern = "Data";
+
+//     // ------------------ BASIC SEARCH ------------------
+//     cout << "\n===== SEARCH RESULTS =====\n";
+
+//     SearchOptions options;
+//     options.caseSensitive = true;
+//     options.wholeWord = true;
+//     options.contextLines = 1;
+
+//     vector<SearchResult> results = engine.search(text, pattern, options);
+
+//     for (const auto &r : results)
+//     {
+//         cout << "Found at position: " << r.position
+//              << ", Line: " << r.line
+//              << ", Column: " << r.column << endl;
+//         cout << "Context:\n"
+//              << r.context << endl;
+//         cout << "--------------------------\n";
+//     }
+
+//     history.addSearch(pattern, results.size());
+
+//     // ------------------ HIGHLIGHT ------------------
+//     cout << "\n===== HIGHLIGHTED TEXT =====\n";
+//     string highlighted = engine.findAndHighlight(text, pattern, "[[", "]]");
+//     cout << highlighted << endl;
+
+//     // ------------------ REPLACE FIRST ------------------
+//     cout << "\n===== REPLACE FIRST =====\n";
+//     string replacedFirst = engine.replaceFirst(text, "Data", "DATA");
+//     cout << replacedFirst << endl;
+
+//     // ------------------ REPLACE ALL ------------------
+//     cout << "\n===== REPLACE ALL =====\n";
+//     string replacedAll = engine.replaceAll(text, "Data", "DATA");
+//     cout << replacedAll << endl;
+
+//     // ------------------ COUNT OCCURRENCES ------------------
+//     cout << "\n===== COUNT OCCURRENCES =====\n";
+//     int count = engine.countOccurrences(text, "Data");
+//     cout << "'Data' found " << count << " times.\n";
+
+//     // ------------------ FUZZY SEARCH ------------------
+//     cout << "\n===== FUZZY SEARCH =====\n";
+//     vector<size_t> fuzzyPositions = engine.fuzzySearch(text, "Dat", 1);
+
+//     for (size_t pos : fuzzyPositions)
+//     {
+//         cout << "Approximate match at position: " << pos << endl;
+//     }
+
+//     // ------------------ SEARCH HISTORY ------------------
+//     cout << "\n===== SEARCH HISTORY =====\n";
+//     history.displayHistory();
+
+//     return 0;
+// }

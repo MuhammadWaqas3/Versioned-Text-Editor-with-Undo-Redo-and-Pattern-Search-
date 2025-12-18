@@ -218,8 +218,7 @@ vector<int> AdvancedSearchEngine::computeBadCharTable(const string &pattern) con
     return badChar;
 }
 
-vector<size_t> AdvancedSearchEngine::boyerMooreSearch(const string &text,
-                                                      const string &pattern) const
+vector<size_t> AdvancedSearchEngine::boyerMooreSearch(const string &text,const string &pattern) const
 {
     vector<size_t> positions;
 
@@ -256,8 +255,7 @@ vector<size_t> AdvancedSearchEngine::boyerMooreSearch(const string &text,
     return positions;
 }
 
-vector<SearchResult> AdvancedSearchEngine::search(const string &text, const string &pattern,
-                                                  const SearchOptions &options) const
+vector<SearchResult> AdvancedSearchEngine::search(const string &text, const string &pattern,const SearchOptions &options) const
 {
     vector<SearchResult> results;
 
