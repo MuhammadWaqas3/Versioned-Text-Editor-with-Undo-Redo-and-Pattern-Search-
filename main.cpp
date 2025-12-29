@@ -1,1888 +1,1039 @@
-// #include "Buffer.h"
-// #include "History.h"
-// #include <iostream>
-// #include <iomanip>
-// #include <limits>
-
-// using namespace std;
-
-// void clearScreen() {
-//     #ifdef _WIN32
-//         system("cls");
-//     #else
-//         system("clear");
-//     #endif
-// }
-
-// void displayMenu() {
-//     cout << "\n====== Text Editor with Version History ======\n";
-//     cout << "1.  Insert text\n";
-//     cout << "2.  Delete text\n";
-//     cout << "3.  Replace text\n";
-//     cout << "4.  View document\n";
-//     cout << "5.  Search pattern\n";
-//     cout << "6.  Search and replace\n";
-//     cout << "7.  Undo\n";
-//     cout << "8.  Redo\n";
-//     cout << "9.  Load from file\n";
-//     cout << "10. Save to file\n";
-//     cout << "11. Clear document\n";
-//     cout << "0.  Exit\n";
-//     cout << "==============================================\n";
-//     cout << "Choice: ";
-// }
-
-// void displayDocument(const TextEditor& editor, int maxLines = 20) {
-//     string text = editor.getText();
-    
-//     cout << "\n--- Document Content (Length: " << text.length() << " chars) ---\n";
-    
-//     if (text.empty()) {
-//         cout << "[Empty document]\n";
-//         return;
-//     }
-    
-//     // Display with line numbers
-//     int lineNum = 1;
-//     int charCount = 0;
-//     cout << setw(4) << lineNum << " | ";
-    
-//     for (char c : text) {
-//         cout << c;
-//         charCount++;
-        
-//         if (c == '\n') {
-//             lineNum++;
-//             if (lineNum <= maxLines) {
-//                 cout << setw(4) << lineNum << " | ";
-//             } else {
-//                 cout << "... [" << (text.length() - charCount) << " more characters]\n";
-//                 break;
-//             }
-//         }
-//     }
-    
-//     if (text.back() != '\n') cout << '\n';
-//     cout << "--- End of Document ---\n";
-// }
-
-// void handleInsert(TextEditor& editor) {
-//     size_t pos;
-//     cout << "Enter position to insert (0 to " << editor.getLength() << "): ";
-//     cin >> pos;
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-//     cout << "Enter text to insert (end with empty line):\n";
-//     string text, line;
-//     while (getline(cin, line) && !line.empty()) {
-//         if (!text.empty()) text += '\n';
-//         text += line;
-//     }
-    
-//     editor.insert(pos, text);
-//     cout << "✓ Inserted " << text.length() << " characters.\n";
-// }
-
-// void handleDelete(TextEditor& editor) {
-//     size_t pos, length;
-//     cout << "Enter start position: ";
-//     cin >> pos;
-//     cout << "Enter length to delete: ";
-//     cin >> length;
-    
-//     editor.deleteText(pos, length);
-//     cout << "✓ Deleted text.\n";
-// }
-
-// void handleReplace(TextEditor& editor) {
-//     size_t pos, length;
-//     cout << "Enter start position: ";
-//     cin >> pos;
-//     cout << "Enter length to replace: ";
-//     cin >> length;
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-//     cout << "Enter replacement text: ";
-//     string text;
-//     getline(cin, text);
-    
-//     editor.replace(pos, length, text);
-//     cout << "✓ Replaced text.\n";
-// }
-
-// void handleSearch(const TextEditor& editor) {
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//     cout << "Enter search pattern: ";
-//     string pattern;
-//     getline(cin, pattern);
-    
-//     auto positions = editor.search(pattern);
-    
-//     if (positions.empty()) {
-//         cout << "Pattern not found.\n";
-//     } else {
-//         cout << "Found " << positions.size() << " occurrences at positions: ";
-//         for (size_t i = 0; i < positions.size() && i < 10; i++) {
-//             cout << positions[i] << " ";
-//         }
-//         if (positions.size() > 10) {
-//             cout << "... (+" << (positions.size() - 10) << " more)";
-//         }
-//         cout << '\n';
-//     }
-// }
-
-// void handleSearchReplace(TextEditor& editor) {
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//     cout << "Enter search pattern: ";
-//     string pattern;
-//     getline(cin, pattern);
-    
-//     cout << "Enter replacement text: ";
-//     string replacement;
-//     getline(cin, replacement);
-    
-//     int count = editor.searchAndReplace(pattern, replacement);
-//     cout << "✓ Replaced " << count << " occurrences.\n";
-// }
-
-// void handleLoadFile(TextEditor& editor) {
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//     cout << "Enter filename to load: ";
-//     string filename;
-//     getline(cin, filename);
-    
-//     if (editor.loadFromFile(filename)) {
-//         cout << "✓ File loaded successfully.\n";
-//         cout << "  Loaded " << editor.getLength() << " characters.\n";
-//     } else {
-//         cout << "✗ Failed to load file.\n";
-//     }
-// }
-
-// void handleSaveFile(TextEditor& editor) {
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//     cout << "Enter filename to save (or press Enter for current file): ";
-//     string filename;
-//     getline(cin, filename);
-    
-//     if (editor.saveToFile(filename)) {
-//         cout << "✓ File saved successfully.\n";
-//     } else {
-//         cout << "✗ Failed to save file.\n";
-//     }
-// }
-
-// int main() {
-//     TextEditor editor;
-//     int choice;
-    
-//     cout << "Welcome to Text Editor!\n";
-//     cout << "A console-based text editor with undo/redo and pattern search.\n";
-    
-//     while (true) {
-//         displayMenu();
-        
-//         if (!(cin >> choice)) {
-//             cin.clear();
-//             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//             cout << "Invalid input. Please enter a number.\n";
-//             continue;
-//         }
-        
-//         switch (choice) {
-//             case 1:
-//                 handleInsert(editor);
-//                 break;
-//             case 2:
-//                 handleDelete(editor);
-//                 break;
-//             case 3:
-//                 handleReplace(editor);
-//                 break;
-//             case 4:
-//                 displayDocument(editor);
-//                 break;
-//             case 5:
-//                 handleSearch(editor);
-//                 break;
-//             case 6:
-//                 handleSearchReplace(editor);
-//                 break;
-//             case 7:
-//                 if (editor.undo()) {
-//                     cout << "✓ Undo successful.\n";
-//                 } else {
-//                     cout << "Nothing to undo.\n";
-//                 }
-//                 break;
-//             case 8:
-//                 if (editor.redo()) {
-//                     cout << "✓ Redo successful.\n";
-//                 } else {
-//                     cout << "Nothing to redo.\n";
-//                 }
-//                 break;
-//             case 9:
-//                 handleLoadFile(editor);
-//                 break;
-//             case 10:
-//                 handleSaveFile(editor);
-//                 break;
-//             case 11:
-//                 editor.clear();
-//                 cout << "✓ Document cleared.\n";
-//                 break;
-//             case 0:
-//                 if (editor.isModified()) {
-//                     char save;
-//                     cout << "Document has unsaved changes. Save before exit? (y/n): ";
-//                     cin >> save;
-//                     if (save == 'y' || save == 'Y') {
-//                         handleSaveFile(editor);
-//                     }
-//                 }
-//                 cout << "Goodbye!\n";
-//                 return 0;
-//             default:
-//                 cout << "Invalid choice. Please try again.\n";
-//         }
-        
-//         cout << "\nPress Enter to continue...";
-//         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//         cin.get();
-//     }
-    
-//     return 0;
-// }
-
-
-
-// // #include "Buffer.h"
-// // #include "History.h"
-// // #include "SnapshotManager.h"
-// // #include "AdvancedSearch.h"
-// // #include <iostream>
-// // #include <iomanip>
-// // #include <limits>
-
-// // using namespace std;
-
-// // class CompleteTextEditor {
-// // private:
-// //     TextEditor editor;
-// //     VersionHistory versionHistory;
-// //     SnapshotManager snapshotManager;
-// //     AdvancedSearchEngine advancedSearch;
-// //     SearchHistory searchHistory;
-    
-// // public:
-// //     CompleteTextEditor() {}
-    
-// //     TextEditor& getEditor() { return editor; }
-// //     VersionHistory& getVersionHistory() { return versionHistory; }
-// //     SnapshotManager& getSnapshotManager() { return snapshotManager; }
-// //     AdvancedSearchEngine& getSearchEngine() { return advancedSearch; }
-// //     SearchHistory& getSearchHistory() { return searchHistory; }
-// // };
-
-// // void clearScreen() {
-// //     #ifdef _WIN32
-// //         system("cls");
-// //     #else
-// //         system("clear");
-// //     #endif
-// // }
-
-// // void displayMainMenu() {
-// //     cout << "\n╔════════════════════════════════════════════════╗\n";
-// //     cout << "║     VERSIONED TEXT EDITOR - Main Menu         ║\n";
-// //     cout << "╚════════════════════════════════════════════════╝\n";
-    
-// //     cout << "\n┌─ TEXT OPERATIONS ─────────────────────────────┐\n";
-// //     cout << "│ 1.  Insert text                               │\n";
-// //     cout << "│ 2.  Delete text                               │\n";
-// //     cout << "│ 3.  Replace text                              │\n";
-// //     cout << "│ 4.  View document                             │\n";
-// //     cout << "└───────────────────────────────────────────────┘\n";
-    
-// //     cout << "\n┌─ HISTORY (Undo/Redo) ─────────────────────────┐\n";
-// //     cout << "│ 5.  Undo (Ctrl+Z)                             │\n";
-// //     cout << "│ 6.  Redo (Ctrl+Y)                             │\n";
-// //     cout << "└───────────────────────────────────────────────┘\n";
-    
-// //     cout << "\n┌─ PERSISTENT SNAPSHOTS ────────────────────────┐\n";
-// //     cout << "│ 7.  Create snapshot                           │\n";
-// //     cout << "│ 8.  List all snapshots                        │\n";
-// //     cout << "│ 9.  Restore snapshot                          │\n";
-// //     cout << "│ 10. Compare snapshots                         │\n";
-// //     cout << "│ 11. Delete snapshot                           │\n";
-// //     cout << "│ 12. Display snapshot tree                     │\n";
-// //     cout << "└───────────────────────────────────────────────┘\n";
-    
-// //     cout << "\n┌─ PATTERN SEARCH (Ctrl+F) ─────────────────────┐\n";
-// //     cout << "│ 13. Basic search                              │\n";
-// //     cout << "│ 14. Advanced search (with options)            │\n";
-// //     cout << "│ 15. Search and replace                        │\n";
-// //     cout << "│ 16. Multi-pattern search                      │\n";
-// //     cout << "│ 17. Fuzzy search (approximate)                │\n";
-// //     cout << "│ 18. Find with context                         │\n";
-// //     cout << "│ 19. Search history                            │\n";
-// //     cout << "│ 20. Search in snapshots                       │\n";
-// //     cout << "└───────────────────────────────────────────────┘\n";
-    
-// //     cout << "\n┌─ FILE OPERATIONS ─────────────────────────────┐\n";
-// //     cout << "│ 21. Load from file                            │\n";
-// //     cout << "│ 22. Save to file                              │\n";
-// //     cout << "│ 23. Clear document                            │\n";
-// //     cout << "└───────────────────────────────────────────────┘\n";
-    
-// //     cout << "\n 0.  Exit\n";
-// //     cout << "════════════════════════════════════════════════\n";
-// //     cout << "Choice: ";
-// // }
-
-// // void displayDocument(const TextEditor& editor, int maxLines = 25) {
-// //     string text = editor.getText();
-    
-// //     cout << "\n┌─ Document Content ─────────────────────────────┐\n";
-// //     cout << "│ Length: " << text.length() << " characters" << string(28, ' ') << "│\n";
-// //     cout << "└────────────────────────────────────────────────┘\n";
-    
-// //     if (text.empty()) {
-// //         cout << "[Empty document]\n";
-// //         return;
-// //     }
-    
-// //     int lineNum = 1;
-// //     int charCount = 0;
-// //     cout << setw(4) << lineNum << " │ ";
-    
-// //     for (char c : text) {
-// //         cout << c;
-// //         charCount++;
-        
-// //         if (c == '\n') {
-// //             lineNum++;
-// //             if (lineNum <= maxLines) {
-// //                 cout << setw(4) << lineNum << " │ ";
-// //             } else {
-// //                 cout << "... [" << (text.length() - charCount) << " more characters]\n";
-// //                 break;
-// //             }
-// //         }
-// //     }
-    
-// //     if (!text.empty() && text.back() != '\n') cout << '\n';
-// //     cout << "─────────────────────────────────────────────────\n";
-// // }
-
-// // // Text Operations
-// // void handleInsert(TextEditor& editor) {
-// //     size_t pos;
-// //     cout << "\nEnter position to insert (0 to " << editor.getLength() << "): ";
-// //     cin >> pos;
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "Enter text to insert (end with empty line):\n";
-// //     string text, line;
-// //     while (getline(cin, line) && !line.empty()) {
-// //         if (!text.empty()) text += '\n';
-// //         text += line;
-// //     }
-    
-// //     if (!text.empty()) {
-// //         editor.insert(pos, text);
-// //         cout << "✓ Inserted " << text.length() << " characters.\n";
-// //     }
-// // }
-
-// // void handleDelete(TextEditor& editor) {
-// //     size_t pos, length;
-// //     cout << "\nEnter start position: ";
-// //     cin >> pos;
-// //     cout << "Enter length to delete: ";
-// //     cin >> length;
-    
-// //     editor.deleteText(pos, length);
-// //     cout << "✓ Deleted text.\n";
-// // }
-
-// // void handleReplace(TextEditor& editor) {
-// //     size_t pos, length;
-// //     cout << "\nEnter start position: ";
-// //     cin >> pos;
-// //     cout << "Enter length to replace: ";
-// //     cin >> length;
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "Enter replacement text: ";
-// //     string text;
-// //     getline(cin, text);
-    
-// //     editor.replace(pos, length, text);
-// //     cout << "✓ Replaced text.\n";
-// // }
-
-// // // Snapshot Operations
-// // void handleCreateSnapshot(CompleteTextEditor& edi) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "\nEnter snapshot name: ";
-// //     string name;
-// //     getline(cin, name);
-    
-// //     cout << "Enter description (optional): ";
-// //     string desc;
-// //     getline(cin, desc);
-    
-// //     string content = edi.getEditor().getText();
-// //     auto snapshot = edi.getSnapshotManager().createSnapshot(name, content, desc);
-    
-// //     if (snapshot) {
-// //         cout << "✓ Snapshot created: [" << snapshot->getId() << "] " 
-// //              << snapshot->getName() << endl;
-// //     }
-// // }
-
-// // void handleRestoreSnapshot(CompleteTextEditor& edi) {
-// //     cout << "\nRestore by (1) ID or (2) Name? ";
-// //     int choice;
-// //     cin >> choice;
-    
-// //     shared_ptr<Snapshot> snapshot = nullptr;
-    
-// //     if (choice == 1) {
-// //         int id;
-// //         cout << "Enter snapshot ID: ";
-// //         cin >> id;
-// //         snapshot = edi.getSnapshotManager().getSnapshot(id);
-// //     } else {
-// //         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //         cout << "Enter snapshot name: ";
-// //         string name;
-// //         getline(cin, name);
-// //         snapshot = edi.getSnapshotManager().getSnapshot(name);
-// //     }
-    
-// //     if (snapshot) {
-// //         string content = snapshot->reconstructContent();
-// //         edi.getEditor().clear();
-// //         edi.getEditor().insert(0, content);
-// //         cout << "✓ Restored snapshot: " << snapshot->getName() << endl;
-// //     } else {
-// //         cout << "✗ Snapshot not found.\n";
-// //     }
-// // }
-
-// // void handleCompareSnapshots(CompleteTextEditor& edi) {
-// //     int id1, id2;
-// //     cout << "\nEnter first snapshot ID: ";
-// //     cin >> id1;
-// //     cout << "Enter second snapshot ID: ";
-// //     cin >> id2;
-    
-// //     edi.getSnapshotManager().compareSnapshots(id1, id2);
-// // }
-
-// // void handleDeleteSnapshot(CompleteTextEditor& edi) {
-// //     int id;
-// //     cout << "\nEnter snapshot ID to delete: ";
-// //     cin >> id;
-    
-// //     if (edi.getSnapshotManager().deleteSnapshot(id)) {
-// //         cout << "✓ Snapshot deleted.\n";
-// //     } else {
-// //         cout << "✗ Failed to delete snapshot.\n";
-// //     }
-// // }
-
-// // // Search Operations
-// // void handleBasicSearch(CompleteTextEditor& edi) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //     cout << "\nEnter search pattern: ";
-// //     string pattern;
-// //     getline(cin, pattern);
-    
-// //     auto positions = edi.getEditor().search(pattern);
-// //     edi.getSearchHistory().addSearch(pattern, positions.size());
-    
-// //     if (positions.empty()) {
-// //         cout << "Pattern not found.\n";
-// //     } else {
-// //         cout << "Found " << positions.size() << " occurrences at positions:\n";
-// //         for (size_t i = 0; i < positions.size() && i < 20; i++) {
-// //             cout << positions[i];
-// //             if (i < positions.size() - 1 && i < 19) cout << ", ";
-// //         }
-// //         if (positions.size() > 20) {
-// //             cout << "\n... (+" << (positions.size() - 20) << " more)";
-// //         }
-// //         cout << '\n';
-// //     }
-// // }
-
-// // void handleAdvancedSearch(CompleteTextEditor& edi) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "\nEnter search pattern: ";
-// //     string pattern;
-// //     getline(cin, pattern);
-    
-// //     SearchOptions options;
-    
-// //     cout << "Case sensitive? (y/n): ";
-// //     char resp;
-// //     cin >> resp;
-// //     options.caseSensitive = (resp == 'y' || resp == 'Y');
-    
-// //     cout << "Whole word only? (y/n): ";
-// //     cin >> resp;
-// //     options.wholeWord = (resp == 'y' || resp == 'Y');
-    
-// //     cout << "Context lines (default 1): ";
-// //     int ctx;
-// //     cin >> ctx;
-// //     options.contextLines = ctx;
-    
-// //     string text = edi.getEditor().getText();
-// //     auto results = edi.getSearchEngine().search(text, pattern, options);
-// //     edi.getSearchHistory().addSearch(pattern, results.size());
-    
-// //     if (results.empty()) {
-// //         cout << "\nPattern not found.\n";
-// //     } else {
-// //         cout << "\nFound " << results.size() << " matches:\n\n";
-// //         for (size_t i = 0; i < results.size() && i < 10; i++) {
-// //             cout << "Match " << (i + 1) << " - Line " << results[i].line 
-// //                  << ", Col " << results[i].column << ":\n";
-// //             cout << results[i].context << "\n";
-// //             cout << string(40, '-') << endl;
-// //         }
-// //         if (results.size() > 10) {
-// //             cout << "... (+" << (results.size() - 10) << " more matches)\n";
-// //         }
-// //     }
-// // }
-
-// // void handleSearchAndReplace(CompleteTextEditor& edi) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "\nEnter search pattern: ";
-// //     string pattern;
-// //     getline(cin, pattern);
-    
-// //     cout << "Enter replacement text: ";
-// //     string replacement;
-// //     getline(cin, replacement);
-    
-// //     int count = edi.getEditor().searchAndReplace(pattern, replacement);
-// //     cout << "✓ Replaced " << count << " occurrences.\n";
-// // }
-
-// // void handleMultiPatternSearch(CompleteTextEditor& edi) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "\nEnter number of patterns: ";
-// //     int n;
-// //     cin >> n;
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     vector<string> patterns;
-// //     for (int i = 0; i < n; i++) {
-// //         cout << "Pattern " << (i + 1) << ": ";
-// //         string pattern;
-// //         getline(cin, pattern);
-// //         patterns.push_back(pattern);
-// //     }
-    
-// //     string text = edi.getEditor().getText();
-// //     auto results = edi.getSearchEngine().multiPatternSearch(text, patterns);
-    
-// //     cout << "\n=== Multi-Pattern Search Results ===\n";
-// //     for (const auto& result : results) {
-// //         cout << "Pattern '" << result.first << "': " 
-// //              << result.second.size() << " matches\n";
-// //     }
-// // }
-
-// // void handleFuzzySearch(CompleteTextEditor& edi) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "\nEnter search pattern: ";
-// //     string pattern;
-// //     getline(cin, pattern);
-    
-// //     cout << "Max edit distance (default 2): ";
-// //     int maxDist;
-// //     cin >> maxDist;
-    
-// //     string text = edi.getEditor().getText();
-// //     auto positions = edi.getSearchEngine().fuzzySearch(text, pattern, maxDist);
-    
-// //     cout << "\nFound " << positions.size() << " approximate matches.\n";
-// // }
-
-// // void handleFindWithContext(CompleteTextEditor& edi) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "\nEnter search pattern: ";
-// //     string pattern;
-// //     getline(cin, pattern);
-    
-// //     cout << "Context lines (default 2): ";
-// //     int lines;
-// //     cin >> lines;
-    
-// //     string text = edi.getEditor().getText();
-// //     auto results = edi.getSearchEngine().findWithContext(text, pattern, lines);
-    
-// //     if (results.empty()) {
-// //         cout << "\nPattern not found.\n";
-// //     } else {
-// //         cout << "\nFound " << results.size() << " matches with context:\n\n";
-// //         for (size_t i = 0; i < results.size() && i < 5; i++) {
-// //             cout << "Match " << (i + 1) << " at Line " << results[i].line << ":\n";
-// //             cout << results[i].context << "\n";
-// //             cout << string(50, '=') << endl;
-// //         }
-// //     }
-// // }
-
-// // void handleSearchInSnapshots(CompleteTextEditor& edi) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "\nEnter search pattern: ";
-// //     string pattern;
-// //     getline(cin, pattern);
-    
-// //     auto snapshots = edi.getSnapshotManager().getAllSnapshots();
-    
-// //     if (snapshots.empty()) {
-// //         cout << "No snapshots available.\n";
-// //         return;
-// //     }
-    
-// //     cout << "\n=== Searching in all snapshots for: '" << pattern << "' ===\n";
-    
-// //     bool found = false;
-// //     for (const auto& snap : snapshots) {
-// //         string content = snap->reconstructContent();
-// //         auto positions = edi.getSearchEngine().rollingHashSearch(content, pattern);
-        
-// //         if (!positions.empty()) {
-// //             cout << "Snapshot [" << snap->getId() << "] '" << snap->getName() 
-// //                  << "': Found " << positions.size() << " occurrences\n";
-// //             found = true;
-// //         }
-// //     }
-    
-// //     if (!found) {
-// //         cout << "Pattern not found in any snapshot.\n";
-// //     }
-// // }
-
-// // // File Operations
-// // void handleLoadFile(TextEditor& editor) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //     cout << "\nEnter filename to load: ";
-// //     string filename;
-// //     getline(cin, filename);
-    
-// //     if (editor.loadFromFile(filename)) {
-// //         cout << "✓ File loaded successfully.\n";
-// //         cout << "  Loaded " << editor.getLength() << " characters.\n";
-// //     } else {
-// //         cout << "✗ Failed to load file.\n";
-// //     }
-// // }
-
-// // void handleSaveFile(TextEditor& editor) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //     cout << "\nEnter filename to save (or press Enter for current file): ";
-// //     string filename;
-// //     getline(cin, filename);
-    
-// //     if (editor.saveToFile(filename)) {
-// //         cout << "✓ File saved successfully.\n";
-// //     } else {
-// //         cout << "✗ Failed to save file.\n";
-// //     }
-// // }
-
-// // int main() {
-// //     CompleteTextEditor editor;
-// //     int choice;
-    
-// //     cout << "╔════════════════════════════════════════════════╗\n";
-// //     cout << "║   VERSIONED TEXT EDITOR                        ║\n";
-// //     cout << "║   Data Structures & Algorithms Project         ║\n";
-// //     cout << "║   Team: Ahsan & Waqas                          ║\n";
-// //     cout << "║   Fall 2025                                    ║\n";
-// //     cout << "╚════════════════════════════════════════════════╝\n";
-// //     cout << "\nFeatures:\n";
-// //     cout << "✓ Buffer Management (Chunked Array)\n";
-// //     cout << "✓ Undo/Redo (Custom Stack)\n";
-// //     cout << "✓ Persistent Snapshots (Linked List with Deltas)\n";
-// //     cout << "✓ Pattern Search (Rolling Hash + KMP + Boyer-Moore)\n";
-    
-// //     while (true) {
-// //         displayMainMenu();
-        
-// //         if (!(cin >> choice)) {
-// //             cin.clear();
-// //             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //             cout << "Invalid input. Please enter a number.\n";
-// //             continue;
-// //         }
-        
-// //         switch (choice) {
-// //             case 1: handleInsert(editor.getEditor()); break;
-// //             case 2: handleDelete(editor.getEditor()); break;
-// //             case 3: handleReplace(editor.getEditor()); break;
-// //             case 4: displayDocument(editor.getEditor()); break;
-            
-// //             case 5:
-// //                 if (editor.getEditor().undo()) {
-// //                     cout << "✓ Undo successful.\n";
-// //                 } else {
-// //                     cout << "Nothing to undo.\n";
-// //                 }
-// //                 break;
-            
-// //             case 6:
-// //                 if (editor.getEditor().redo()) {
-// //                     cout << "✓ Redo successful.\n";
-// //                 } else {
-// //                     cout << "Nothing to redo.\n";
-// //                 }
-// //                 break;
-            
-// //             case 7: handleCreateSnapshot(editor); break;
-// //             case 8: editor.getSnapshotManager().displaySnapshotList(); break;
-// //             case 9: handleRestoreSnapshot(editor); break;
-// //             case 10: handleCompareSnapshots(editor); break;
-// //             case 11: handleDeleteSnapshot(editor); break;
-// //             case 12: editor.getSnapshotManager().displaySnapshotTree(); break;
-            
-// //             case 13: handleBasicSearch(editor); break;
-// //             case 14: handleAdvancedSearch(editor); break;
-// //             case 15: handleSearchAndReplace(editor); break;
-// //             case 16: handleMultiPatternSearch(editor); break;
-// //             case 17: handleFuzzySearch(editor); break;
-// //             case 18: handleFindWithContext(editor); break;
-// //             case 19: editor.getSearchHistory().displayHistory(); break;
-// //             case 20: handleSearchInSnapshots(editor); break;
-            
-// //             case 21: handleLoadFile(editor.getEditor()); break;
-// //             case 22: handleSaveFile(editor.getEditor()); break;
-// //             case 23:
-// //                 editor.getEditor().clear();
-// //                 cout << "✓ Document cleared.\n";
-// //                 break;
-            
-// //             case 0:
-// //                 if (editor.getEditor().isModified()) {
-// //                     char save;
-// //                     cout << "Document has unsaved changes. Save before exit? (y/n): ";
-// //                     cin >> save;
-// //                     if (save == 'y' || save == 'Y') {
-// //                         handleSaveFile(editor.getEditor());
-// //                     }
-// //                 }
-// //                 cout << "\n╔════════════════════════════════════════════════╗\n";
-// //                 cout << "║   Thank you for using Versioned Text Editor!  ║\n";
-// //                 cout << "║   Project by: Ahsan & Waqas                    ║\n";
-// //                 cout << "╚════════════════════════════════════════════════╝\n";
-// //                 return 0;
-            
-// //             default:
-// //                 cout << "Invalid choice. Please try again.\n";
-// //         }
-        
-// //         cout << "\n⏎ Press Enter to continue...";
-// //         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //         cin.get();
-// //     }
-    
-// //     return 0;
-// // }
-
-
-
-
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-// // #include "Buffer.h"
-// // #include "History.h"
-// // #include "AdvancedSearch.h"
-// // #include <iostream>
-// // #include <iomanip>
-// // #include <limits>
-
-// // using namespace std;
-
-// // void clearScreen() {
-// //     #ifdef _WIN32
-// //         system("cls");
-// //     #else
-// //         system("clear");
-// //     #endif
-// // }
-
-// // void displayMenu() {
-// //     cout << "\n====== Text Editor with Version History ======\n";
-// //     cout << "1.  Insert text\n";
-// //     cout << "2.  Delete text\n";
-// //     cout << "3.  Replace text\n";
-// //     cout << "4.  View document\n";
-// //     cout << "5.  Search pattern\n";
-// //     cout << "6.  Search and replace\n";
-// //     cout << "7.  Undo\n";
-// //     cout << "8.  Redo\n";
-// //     cout << "9.  Load from file\n";
-// //     cout << "10. Save to file\n";
-// //     cout << "11. Clear document\n";
-// //     cout << "0.  Exit\n";
-// //     cout << "==============================================\n";
-// //     cout << "Choice: ";
-// // }
-
-// // void displayDocument(const TextEditor& editor, int maxLines = 20) {
-// //     string text = editor.getText();
-    
-// //     cout << "\n--- Document Content (Length: " << text.length() << " chars) ---\n";
-    
-// //     if (text.empty()) {
-// //         cout << "[Empty document]\n";
-// //         return;
-// //     }
-    
-// //     // Display with line numbers
-// //     int lineNum = 1;
-// //     int charCount = 0;
-// //     cout << setw(4) << lineNum << " | ";
-    
-// //     for (char c : text) {
-// //         cout << c;
-// //         charCount++;
-        
-// //         if (c == '\n') {
-// //             lineNum++;
-// //             if (lineNum <= maxLines) {
-// //                 cout << setw(4) << lineNum << " | ";
-// //             } else {
-// //                 cout << "... [" << (text.length() - charCount) << " more characters]\n";
-// //                 break;
-// //             }
-// //         }
-// //     }
-    
-// //     if (text.back() != '\n') cout << '\n';
-// //     cout << "--- End of Document ---\n";
-// // }
-
-// // void handleInsert(TextEditor& editor) {
-// //     size_t pos;
-// //     cout << "Enter position to insert (0 to " << editor.getLength() << "): ";
-// //     cin >> pos;
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "Enter text to insert (end with empty line):\n";
-// //     string text, line;
-// //     while (getline(cin, line) && !line.empty()) {
-// //         if (!text.empty()) text += '\n';
-// //         text += line;
-// //     }
-    
-// //     editor.insert(pos, text);
-// //     cout << "✓ Inserted " << text.length() << " characters.\n";
-// // }
-
-// // void handleDelete(TextEditor& editor) {
-// //     size_t pos, length;
-// //     cout << "Enter start position: ";
-// //     cin >> pos;
-// //     cout << "Enter length to delete: ";
-// //     cin >> length;
-    
-// //     editor.deleteText(pos, length);
-// //     cout << "✓ Deleted text.\n";
-// // }
-
-// // void handleReplace(TextEditor& editor) {
-// //     size_t pos, length;
-// //     cout << "Enter start position: ";
-// //     cin >> pos;
-// //     cout << "Enter length to replace: ";
-// //     cin >> length;
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-// //     cout << "Enter replacement text: ";
-// //     string text;
-// //     getline(cin, text);
-    
-// //     editor.replace(pos, length, text);
-// //     cout << "✓ Replaced text.\n";
-// // }
-
-// // void handleSearch(const TextEditor& editor) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //     cout << "Enter search pattern: ";
-// //     string pattern;
-// //     getline(cin, pattern);
-    
-// //     auto positions = editor.search(pattern);
-    
-// //     if (positions.empty()) {
-// //         cout << "Pattern not found.\n";
-// //     } else {
-// //         cout << "Found " << positions.size() << " occurrences at positions: ";
-// //         for (size_t i = 0; i < positions.size() && i < 10; i++) {
-// //             cout << positions[i] << " ";
-// //         }
-// //         if (positions.size() > 10) {
-// //             cout << "... (+" << (positions.size() - 10) << " more)";
-// //         }
-// //         cout << '\n';
-// //     }
-// // }
-
-// // void handleSearchReplace(TextEditor& editor) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //     cout << "Enter search pattern: ";
-// //     string pattern;
-// //     getline(cin, pattern);
-    
-// //     cout << "Enter replacement text: ";
-// //     string replacement;
-// //     getline(cin, replacement);
-    
-// //     int count = editor.searchAndReplace(pattern, replacement);
-// //     cout << "✓ Replaced " << count << " occurrences.\n";
-// // }
-
-// // void handleLoadFile(TextEditor& editor) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //     cout << "Enter filename to load: ";
-// //     string filename;
-// //     getline(cin, filename);
-    
-// //     if (editor.loadFromFile(filename)) {
-// //         cout << "✓ File loaded successfully.\n";
-// //         cout << "  Loaded " << editor.getLength() << " characters.\n";
-// //     } else {
-// //         cout << "✗ Failed to load file.\n";
-// //     }
-// // }
-
-// // void handleSaveFile(TextEditor& editor) {
-// //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //     cout << "Enter filename to save (or press Enter for current file): ";
-// //     string filename;
-// //     getline(cin, filename);
-    
-// //     if (editor.saveToFile(filename)) {
-// //         cout << "✓ File saved successfully.\n";
-// //     } else {
-// //         cout << "✗ Failed to save file.\n";
-// //     }
-// // }
-
-// // int main() {
-// //     TextEditor editor;
-// //     int choice;
-    
-// //     cout << "Welcome to Text Editor!\n";
-// //     cout << "A console-based text editor with undo/redo and pattern search.\n";
-    
-// //     while (true) {
-// //         displayMenu();
-        
-// //         if (!(cin >> choice)) {
-// //             cin.clear();
-// //             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //             cout << "Invalid input. Please enter a number.\n";
-// //             continue;
-// //         }
-        
-// //         switch (choice) {
-// //             case 1:
-// //                 handleInsert(editor);
-// //                 break;
-// //             case 2:
-// //                 handleDelete(editor);
-// //                 break;
-// //             case 3:
-// //                 handleReplace(editor);
-// //                 break;
-// //             case 4:
-// //                 displayDocument(editor);
-// //                 break;
-// //             case 5:
-// //                 handleSearch(editor);
-// //                 break;
-// //             case 6:
-// //                 handleSearchReplace(editor);
-// //                 break;
-// //             case 7:
-// //                 if (editor.undo()) {
-// //                     cout << "✓ Undo successful.\n";
-// //                 } else {
-// //                     cout << "Nothing to undo.\n";
-// //                 }
-// //                 break;
-// //             case 8:
-// //                 if (editor.redo()) {
-// //                     cout << "✓ Redo successful.\n";
-// //                 } else {
-// //                     cout << "Nothing to redo.\n";
-// //                 }
-// //                 break;
-// //             case 9:
-// //                 handleLoadFile(editor);
-// //                 break;
-// //             case 10:
-// //                 handleSaveFile(editor);
-// //                 break;
-// //             case 11:
-// //                 editor.clear();
-// //                 cout << "✓ Document cleared.\n";
-// //                 break;
-// //             case 0:
-// //                 if (editor.isModified()) {
-// //                     char save;
-// //                     cout << "Document has unsaved changes. Save before exit? (y/n): ";
-// //                     cin >> save;
-// //                     if (save == 'y' || save == 'Y') {
-// //                         handleSaveFile(editor);
-// //                     }
-// //                 }
-// //                 cout << "Goodbye!\n";
-// //                 return 0;
-// //             default:
-// //                 cout << "Invalid choice. Please try again.\n";
-// //         }
-        
-// //         cout << "\nPress Enter to continue...";
-// //         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-// //         cin.get();
-// //     }
-    
-// //     return 0;
-// // }
-
-
-
-
-
-
-
-
-
-
-
-// #include "Buffer.h"
-// #include "History.h"
-// #include "AdvancedSearch.h"
-// #include <iostream>
-// #include <iomanip>
-// #include <limits>
-
-// using namespace std;
-
-// void clearScreen() {
-//     #ifdef _WIN32
-//         system("cls");
-//     #else
-//         system("clear");
-//     #endif
-// }
-
-// void displayMenu() {
-//     cout << "\n====== Text Editor with Version History ======\n";
-//     cout << "1.  Insert text\n";
-//     cout << "2.  Delete text\n";
-//     cout << "3.  Replace text\n";
-//     cout << "4.  View document\n";
-//     cout << "5.  Search pattern\n";
-//     cout << "6.  Search and replace\n";
-//     cout << "7.  Undo\n";
-//     cout << "8.  Redo\n";
-//     cout << "9.  Load from file\n";
-//     cout << "10. Save to file\n";
-//     cout << "11. Clear document\n";
-//     cout << "12. Show document info\n";
-//     cout << "0.  Exit\n";
-//     cout << "==============================================\n";
-//     cout << "Choice: ";
-// }
-
-// void displayDocument(const TextEditor& editor) {
-//     string text = editor.getText();
-    
-//     cout << "\n==================== DOCUMENT VIEW ====================\n";
-//     cout << "Length: " << text.length() << " characters\n";
-//     cout << "=======================================================\n";
-    
-//     if (text.empty()) {
-//         cout << "[Empty document]\n";
-//         cout << "=======================================================\n";
-//         return;
-//     }
-    
-//     // Display with line numbers - SHOW ALL LINES
-//     int lineNum = 1;
-//     cout << setw(4) << lineNum << " | ";
-    
-//     for (size_t i = 0; i < text.length(); i++) {
-//         char c = text[i];
-//         cout << c;
-        
-//         if (c == '\n') {
-//             lineNum++;
-//             // Show all lines, no limit
-//             cout << setw(4) << lineNum << " | ";
-//         }
-//     }
-    
-//     // Add newline if text doesn't end with one
-//     if (!text.empty() && text.back() != '\n') {
-//         cout << '\n';
-//     }
-    
-//     cout << "=======================================================\n";
-//     cout << "Total lines: " << lineNum << "\n";
-//     cout << "=======================================================\n";
-// }
-
-// void showDocumentInfo(const TextEditor& editor) {
-//     cout << "\n=============== DOCUMENT INFORMATION ===============\n";
-//     cout << "Total characters: " << editor.getLength() << "\n";
-//     cout << "Modified: " << (editor.isModified() ? "Yes" : "No") << "\n";
-//     cout << "Can undo: " << (editor.canUndo() ? "Yes" : "No") << "\n";
-//     cout << "Can redo: " << (editor.canRedo() ? "Yes" : "No") << "\n";
-    
-//     if (!editor.getFilename().empty()) {
-//         cout << "Current file: " << editor.getFilename() << "\n";
-//     } else {
-//         cout << "Current file: [Not saved yet]\n";
-//     }
-    
-//     cout << "====================================================\n";
-// }
-
-// void handleInsert(TextEditor& editor) {
-//     size_t pos;
-//     cout << "Enter position to insert (0 to " << editor.getLength() << "): ";
-//     cin >> pos;
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-//     cout << "Enter text to insert (type END on a new line to finish):\n";
-//     string text, line;
-    
-//     while (getline(cin, line)) {
-//         if (line == "END") break;
-//         if (!text.empty()) text += '\n';
-//         text += line;
-//     }
-    
-//     if (!text.empty()) {
-//         editor.insert(pos, text);
-//         cout << "✓ Inserted " << text.length() << " characters.\n";
-//     } else {
-//         cout << "No text inserted.\n";
-//     }
-// }
-
-// void handleDelete(TextEditor& editor) {
-//     size_t pos, length;
-//     cout << "Enter start position (0 to " << editor.getLength() << "): ";
-//     cin >> pos;
-//     cout << "Enter length to delete: ";
-//     cin >> length;
-    
-//     if (pos >= editor.getLength()) {
-//         cout << "Invalid position!\n";
-//         return;
-//     }
-    
-//     editor.deleteText(pos, length);
-//     cout << "✓ Deleted text.\n";
-// }
-
-// void handleReplace(TextEditor& editor) {
-//     size_t pos, length;
-//     cout << "Enter start position (0 to " << editor.getLength() << "): ";
-//     cin >> pos;
-//     cout << "Enter length to replace: ";
-//     cin >> length;
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-//     if (pos >= editor.getLength()) {
-//         cout << "Invalid position!\n";
-//         return;
-//     }
-    
-//     cout << "Enter replacement text: ";
-//     string text;
-//     getline(cin, text);
-    
-//     editor.replace(pos, length, text);
-//     cout << "✓ Replaced text.\n";
-// }
-
-// void handleSearch(const TextEditor& editor) {
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//     cout << "Enter search pattern: ";
-//     string pattern;
-//     getline(cin, pattern);
-    
-//     if (pattern.empty()) {
-//         cout << "Pattern cannot be empty!\n";
-//         return;
-//     }
-    
-//     auto positions = editor.search(pattern);
-    
-//     if (positions.empty()) {
-//         cout << "Pattern not found.\n";
-//     } else {
-//         cout << "Found " << positions.size() << " occurrence(s) at position(s): ";
-//         for (size_t i = 0; i < positions.size() && i < 20; i++) {
-//             cout << positions[i];
-//             if (i < positions.size() - 1 && i < 19) cout << ", ";
-//         }
-//         if (positions.size() > 20) {
-//             cout << " ... (+" << (positions.size() - 20) << " more)";
-//         }
-//         cout << '\n';
-        
-//         // Show first match context
-//         if (!positions.empty()) {
-//             string text = editor.getText();
-//             size_t start = (positions[0] > 20) ? positions[0] - 20 : 0;
-//             size_t end = min(positions[0] + pattern.length() + 20, text.length());
-            
-//             cout << "\nFirst match context:\n";
-//             cout << "..." << text.substr(start, end - start) << "...\n";
-//         }
-//     }
-// }
-
-// void handleSearchReplace(TextEditor& editor) {
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//     cout << "Enter search pattern: ";
-//     string pattern;
-//     getline(cin, pattern);
-    
-//     if (pattern.empty()) {
-//         cout << "Pattern cannot be empty!\n";
-//         return;
-//     }
-    
-//     cout << "Enter replacement text: ";
-//     string replacement;
-//     getline(cin, replacement);
-    
-//     // First search to show what will be replaced
-//     auto positions = editor.search(pattern);
-//     if (positions.empty()) {
-//         cout << "Pattern not found. Nothing to replace.\n";
-//         return;
-//     }
-    
-//     cout << "Found " << positions.size() << " occurrence(s). Replace all? (y/n): ";
-//     char confirm;
-//     cin >> confirm;
-    
-//     if (confirm == 'y' || confirm == 'Y') {
-//         int count = editor.searchAndReplace(pattern, replacement);
-//         cout << "✓ Replaced " << count << " occurrence(s).\n";
-//     } else {
-//         cout << "Replace cancelled.\n";
-//     }
-// }
-
-// void handleLoadFile(TextEditor& editor) {
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-//     if (editor.isModified()) {
-//         cout << "Warning: Current document has unsaved changes!\n";
-//         cout << "Continue loading? (y/n): ";
-//         char confirm;
-//         cin >> confirm;
-//         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        
-//         if (confirm != 'y' && confirm != 'Y') {
-//             cout << "Load cancelled.\n";
-//             return;
-//         }
-//     }
-    
-//     cout << "Enter filename to load: ";
-//     string filename;
-//     getline(cin, filename);
-    
-//     if (editor.loadFromFile(filename)) {
-//         cout << "✓ File loaded successfully.\n";
-//         cout << "  Loaded " << editor.getLength() << " characters.\n";
-//     } else {
-//         cout << "✗ Failed to load file. Check if file exists.\n";
-//     }
-// }
-
-// void handleSaveFile(TextEditor& editor) {
-//     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
-//     string filename;
-    
-//     // If file already has a name, show it
-//     if (!editor.getFilename().empty()) {
-//         cout << "Current file: " << editor.getFilename() << "\n";
-//         cout << "Press Enter to save to same file, or type new filename: ";
-//     } else {
-//         cout << "Enter filename to save: ";
-//     }
-    
-//     getline(cin, filename);
-    
-//     // If empty and has current filename, use that
-//     if (filename.empty() && !editor.getFilename().empty()) {
-//         filename = editor.getFilename();
-//     }
-    
-//     if (filename.empty()) {
-//         cout << "✗ No filename specified.\n";
-//         return;
-//     }
-    
-//     if (editor.saveToFile(filename)) {
-//         cout << "✓ File saved successfully to: " << filename << "\n";
-//         cout << "  Saved " << editor.getLength() << " characters.\n";
-//     } else {
-//         cout << "✗ Failed to save file. Check permissions.\n";
-//     }
-// }
-
-// int main() {
-//     TextEditor editor;
-//     int choice;
-    
-//     cout << "╔════════════════════════════════════════════════════╗\n";
-//     cout << "║     Welcome to Advanced Text Editor!              ║\n";
-//     cout << "║     Console-based editor with undo/redo           ║\n";
-//     cout << "╚════════════════════════════════════════════════════╝\n";
-    
-//     while (true) {
-//         displayMenu();
-        
-//         if (!(cin >> choice)) {
-//             cin.clear();
-//             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//             cout << "Invalid input. Please enter a number.\n";
-//             continue;
-//         }
-        
-//         switch (choice) {
-//             case 1:
-//                 handleInsert(editor);
-//                 break;
-//             case 2:
-//                 handleDelete(editor);
-//                 break;
-//             case 3:
-//                 handleReplace(editor);
-//                 break;
-//             case 4:
-//                 displayDocument(editor);
-//                 break;
-//             case 5:
-//                 handleSearch(editor);
-//                 break;
-//             case 6:
-//                 handleSearchReplace(editor);
-//                 break;
-//             case 7:
-//                 if (editor.undo()) {
-//                     cout << "✓ Undo successful.\n";
-//                 } else {
-//                     cout << "Nothing to undo.\n";
-//                 }
-//                 break;
-//             case 8:
-//                 if (editor.redo()) {
-//                     cout << "✓ Redo successful.\n";
-//                 } else {
-//                     cout << "Nothing to redo.\n";
-//                 }
-//                 break;
-//             case 9:
-//                 handleLoadFile(editor);
-//                 break;
-//             case 10:
-//                 handleSaveFile(editor);
-//                 break;
-//             case 11:
-//                 if (editor.isModified()) {
-//                     cout << "Document has unsaved changes. Clear anyway? (y/n): ";
-//                     char confirm;
-//                     cin >> confirm;
-//                     if (confirm != 'y' && confirm != 'Y') {
-//                         cout << "Clear cancelled.\n";
-//                         break;
-//                     }
-//                 }
-//                 editor.clear();
-//                 cout << "✓ Document cleared.\n";
-//                 break;
-//             case 12:
-//                 showDocumentInfo(editor);
-//                 break;
-//             case 0:
-//                 if (editor.isModified()) {
-//                     char save;
-//                     cout << "Document has unsaved changes. Save before exit? (y/n): ";
-//                     cin >> save;
-//                     if (save == 'y' || save == 'Y') {
-//                         handleSaveFile(editor);
-//                     }
-//                 }
-//                 cout << "\n╔════════════════════════════════════════════════════╗\n";
-//                 cout << "║           Thank you for using Text Editor!        ║\n";
-//                 cout << "╚════════════════════════════════════════════════════╝\n";
-//                 return 0;
-//             default:
-//                 cout << "Invalid choice. Please try again.\n";
-//         }
-        
-//         cout << "\nPress Enter to continue...";
-//         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-//         cin.get();
-//     }
-    
-//     return 0;
-// }
-
-
-
-// #include <iostream>
-// #include "PersistentRope.h"
-// #include "Buffer.h"
-// #include "History.h"
-// #include "AdvancedSearch.h"
-
-// using namespace std;
-
-// void testPersistentRope() {
-//     cout << "\n===== Testing Persistent Rope =====\n";
-    
-//     PersistentRope rope1("Hello World");
-//     cout << "Initial text: " << rope1.getText() << "\n";
-//     cout << "Length: " << rope1.length() << "\n";
-    
-//     PersistentRope rope2 = rope1.insert(6, "Beautiful ");
-//     cout << "After insert: " << rope2.getText() << "\n";
-    
-//     PersistentRope rope3 = rope2.deleteText(0, 6);
-//     cout << "After delete: " << rope3.getText() << "\n";
-    
-//     cout << "Original still exists: " << rope1.getText() << "\n";
-// }
-
-// void testVersionHistory() {
-//     cout << "\n===== Testing Version History =====\n";
-    
-//     VersionHistory history("Hello World");
-//     cout << "Initial version created\n";
-    
-//     history.insert(6, "Beautiful ", "Added Beautiful");
-//     history.insert(0, "Oh, ", "Added greeting");
-//     history.deleteText(16, 6, "Removed Beautiful");
-    
-//     history.printVersionTree();
-//     history.printVersionPath();
-    
-//     cout << "\nCurrent text: " << history.getCurrentVersion()->rope.getText() << "\n";
-    
-//     cout << "\nGoing back in history...\n";
-//     history.goBack();
-//     cout << "Text after goBack: " << history.getCurrentVersion()->rope.getText() << "\n";
-    
-//     history.goBack();
-//     cout << "Text after another goBack: " << history.getCurrentVersion()->rope.getText() << "\n";
-    
-//     cout << "\nGoing forward...\n";
-//     history.goForward();
-//     cout << "Text after goForward: " << history.getCurrentVersion()->rope.getText() << "\n";
-    
-//     history.analyzeMemoryUsage();
-//     history.compareTwoVersions(1, 3);
-// }
-
-// void testTextEditor() {
-//     cout << "\n===== Testing Text Editor =====\n";
-    
-//     TextEditor editor;
-//     editor.insert(0, "Hello World");
-//     cout << "After insert: " << editor.getText() << "\n";
-    
-//     editor.insert(6, "Beautiful ");
-//     cout << "After insert: " << editor.getText() << "\n";
-    
-//     editor.deleteText(0, 6);
-//     cout << "After delete: " << editor.getText() << "\n";
-    
-//     cout << "\nUndo operations:\n";
-//     editor.undo();
-//     cout << "After undo: " << editor.getText() << "\n";
-    
-//     editor.undo();
-//     cout << "After undo: " << editor.getText() << "\n";
-    
-//     cout << "\nRedo operations:\n";
-//     editor.redo();
-//     cout << "After redo: " << editor.getText() << "\n";
-// }
-
-// void testAdvancedSearch() {
-//     cout << "\n===== Testing Advanced Search =====\n";
-    
-//     AdvancedSearchEngine searchEngine;
-//     string text = "Hello World! hello world! HELLO WORLD!";
-    
-//     SearchOptions options;
-//     options.caseSensitive = false;
-    
-//     vector<SearchResult> results = searchEngine.search(text, "hello", options);
-    
-//     cout << "Searching for 'hello' (case insensitive):\n";
-//     cout << "Found " << results.size() << " matches:\n";
-    
-//     for (const auto& result : results) {
-//         cout << "  Position " << result.position 
-//              << " (Line " << result.lineNumber 
-//              << ", Col " << result.columnNumber << "): "
-//              << result.matchedText << "\n";
-//     }
-    
-//     string testText = "cat dog cat bird cat";
-//     cout << "\nOriginal: " << testText << "\n";
-    
-//     int replaced = searchEngine.searchAndReplace(testText, "cat", "tiger", options);
-//     cout << "After replacing 'cat' with 'tiger': " << testText << "\n";
-//     cout << "Replaced " << replaced << " occurrences\n";
-// }
-
-// void testOldHistory() {
-//     cout << "\n===== Testing Old History System =====\n";
-    
-//     VersionHistory oldHistory;
-    
-//     auto v1 = make_shared<Version>("First version", 1, "Version 1");
-//     oldHistory.addVersion(v1);
-    
-//     auto v2 = make_shared<Version>("Second version", 2, "Version 2");
-//     oldHistory.addVersion(v2);
-    
-//     auto v3 = make_shared<Version>("Third version", 3, "Version 3");
-//     oldHistory.addVersion(v3);
-    
-//     cout << "Total versions: " << oldHistory.getCount() << "\n";
-//     cout << "Current version: " << oldHistory.getCurrentVersion()->getDescription() << "\n";
-    
-//     cout << "\nGoing back...\n";
-//     auto prev = oldHistory.getPreviousVersion();
-//     if (prev) {
-//         cout << "Previous version: " << prev->getDescription() << "\n";
-//     }
-    
-//     cout << "\nAll versions:\n";
-//     auto allVersions = oldHistory.getAllVersions();
-//     for (const auto& v : allVersions) {
-//         cout << "  v" << v->getVersionNumber() << ": " << v->getDescription() 
-//              << " (" << v->getTimestamp() << ")\n";
-//     }
-// }
-
-// void displayMenu() {
-//     cout << "\n========================================\n";
-//     cout << "   Text Editor Testing Menu\n";
-//     cout << "========================================\n";
-//     cout << "1. Test Persistent Rope\n";
-//     cout << "2. Test Version History\n";
-//     cout << "3. Test Text Editor (Undo/Redo)\n";
-//     cout << "4. Test Advanced Search\n";
-//     cout << "5. Test Old History System\n";
-//     cout << "6. Run All Tests\n";
-//     cout << "0. Exit\n";
-//     cout << "========================================\n";
-//     cout << "Enter choice: ";
-// }
-
-// int main() {
-//     int choice;
-    
-//     while (true) {
-//         displayMenu();
-//         cin >> choice;
-//         cin.ignore();
-        
-//         switch (choice) {
-//             case 1:
-//                 testPersistentRope();
-//                 break;
-//             case 2:
-//                 testVersionHistory();
-//                 break;
-//             case 3:
-//                 testTextEditor();
-//                 break;
-//             case 4:
-//                 testAdvancedSearch();
-//                 break;
-//             case 5:
-//                 testOldHistory();
-//                 break;
-//             case 6:
-//                 testPersistentRope();
-//                 testVersionHistory();
-//                 testTextEditor();
-//                 testAdvancedSearch();
-//                 testOldHistory();
-//                 break;
-//             case 0:
-//                 cout << "\nExiting program. Goodbye!\n";
-//                 return 0;
-//             default:
-//                 cout << "\nInvalid choice! Please try again.\n";
-//         }
-        
-//         cout << "\n\nPress Enter to continue...";
-//         cin.get();
-//     }
-    
-//     return 0;
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include <iostream>
+#include <conio.h>
+#include <string>
+#include <windows.h>
+#include <iomanip>
 #include "Buffer.h"
-#include "PersistentRope.h"
 #include "History.h"
 #include "AdvancedSearch.h"
+#include "VersionManager.h"
 
 using namespace std;
 
-void testPersistentRope() {
-    cout << "\n===== Testing Persistent Rope =====\n";
-    
-    PersistentRope rope1("Hello World");
-    cout << "Initial text: " << rope1.getText() << "\n";
-    cout << "Length: " << rope1.length() << "\n";
-    
-    PersistentRope rope2 = rope1.insert(6, "Beautiful ");
-    cout << "After insert: " << rope2.getText() << "\n";
-    
-    PersistentRope rope3 = rope2.deleteText(0, 6);
-    cout << "After delete: " << rope3.getText() << "\n";
-    
-    cout << "Original still exists: " << rope1.getText() << "\n";
+// Global objects
+TextEditor editor;
+VersionHistory versionHistory;
+AdvancedSearchEngine searchEngine;
+SearchHistory searchHistory;
+VersionManager versionManager;
+
+// Color codes for Windows console
+enum Color {
+    BLACK = 0,
+    DARK_BLUE = 1,
+    DARK_GREEN = 2,
+    DARK_CYAN = 3,
+    DARK_RED = 4,
+    DARK_MAGENTA = 5,
+    DARK_YELLOW = 6,
+    GRAY = 7,
+    DARK_GRAY = 8,
+    BLUE = 9,
+    GREEN = 10,
+    CYAN = 11,
+    RED = 12,
+    MAGENTA = 13,
+    YELLOW = 14,
+    WHITE = 15
+};
+
+// Function to set text color
+void setColor(int textColor, int bgColor = BLACK) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, (bgColor << 4) | textColor);
 }
 
-void testVersionHistory() {
-    cout << "\n===== Testing Version History =====\n";
-    
-    VersionHistory history("Hello World");
-    cout << "Initial version created\n";
-    
-    history.insert(6, "Beautiful ", "Added Beautiful");
-    history.insert(0, "Oh, ", "Added greeting");
-    history.deleteText(16, 6, "Removed Beautiful");
-    
-    history.printVersionTree();
-    history.printVersionPath();
-    
-    cout << "\nCurrent text: " << history.getCurrentVersion()->rope->getText() << "\n";
-    
-    cout << "\nGoing back in history...\n";
-    history.goBack();
-    cout << "Text after goBack: " << history.getCurrentVersion()->rope->getText() << "\n";
-    
-    history.goBack();
-    cout << "Text after another goBack: " << history.getCurrentVersion()->rope->getText() << "\n";
-    
-    cout << "\nGoing forward...\n";
-    history.goForward();
-    cout << "Text after goForward: " << history.getCurrentVersion()->rope->getText() << "\n";
-    
-    history.analyzeMemoryUsage();
-    history.compareTwoVersions(1, 3);
+// Function to print colored text
+void printColored(const string& text, int color, bool newline = true) {
+    setColor(color);
+    cout << text;
+    setColor(GRAY);
+    if (newline) cout << endl;
 }
 
-void testTextEditor() {
-    cout << "\n===== Testing Text Editor =====\n";
-    
-    TextEditor editor;
-    editor.insert(0, "Hello World");
-    cout << "After insert: " << editor.getText() << "\n";
-    
-    editor.insert(6, "Beautiful ");
-    cout << "After insert: " << editor.getText() << "\n";
-    
-    editor.deleteText(0, 6);
-    cout << "After delete: " << editor.getText() << "\n";
-    
-    cout << "\nUndo operations:\n";
-    editor.undo();
-    cout << "After undo: " << editor.getText() << "\n";
-    
-    editor.undo();
-    cout << "After undo: " << editor.getText() << "\n";
-    
-    cout << "\nRedo operations:\n";
-    editor.redo();
-    cout << "After redo: " << editor.getText() << "\n";
+// Function to print a separator line
+void printSeparator(char ch = '=', int length = 70) {
+    setColor(CYAN);
+    cout << string(length, ch) << endl;
+    setColor(GRAY);
 }
 
-void testAdvancedSearch() {
-    cout << "\n===== Testing Advanced Search =====\n";
+// Function to print a header
+void printHeader(const string& title) {
+    system("cls");
+    setColor(CYAN);
+    printSeparator('=', 70);
+    setColor(YELLOW);
+    int padding = (70 - title.length()) / 2;
+    cout << string(padding, ' ') << title << endl;
+    setColor(CYAN);
+    printSeparator('=', 70);
+    setColor(GRAY);
+}
+
+// Function to print success message
+void printSuccess(const string& msg) {
+    setColor(GREEN);
+    cout << "\n[SUCCESS] " << msg << endl;
+    setColor(GRAY);
+}
+
+// Function to print error message
+void printError(const string& msg) {
+    setColor(RED);
+    cout << "\n[ERROR] " << msg << endl;
+    setColor(GRAY);
+}
+
+// Function to print info message
+void printInfo(const string& msg) {
+    setColor(CYAN);
+    cout << "\n[INFO] " << msg << endl;
+    setColor(GRAY);
+}
+
+// Function declarations
+void displayMenu();
+void handleInsert();
+void handleDelete();
+void handleReplace();
+void handleUndo();
+void handleRedo();
+void handleSearch();
+void handleAdvancedSearch();
+void handleSearchAndReplace();
+void handleLoadFile();
+void handleSaveFile();
+void handleVersionControl();
+void handleSnapshots();
+
+// ============================================================================
+// SNAPSHOT MANAGEMENT (NEW)
+// ============================================================================
+
+void handleSnapshots() {
+    printHeader("SNAPSHOT MANAGEMENT");
     
-    AdvancedSearchEngine searchEngine;
-    string text = "Hello World! hello world! HELLO WORLD!";
+    setColor(YELLOW);
+    cout << "\n  [1] Create Snapshot" << endl;
+    cout << "  [2] List All Snapshots" << endl;
+    cout << "  [3] Restore Snapshot by ID" << endl;
+    cout << "  [4] Restore Previous Snapshot" << endl;
+    cout << "  [5] Restore Next Snapshot" << endl;
+    cout << "  [6] Delete Snapshot" << endl;
+    cout << "  [7] Export Snapshot to File" << endl;
+    cout << "  [8] Clear All Snapshots" << endl;
+    setColor(RED);
+    cout << "  [0] Back to Main Menu" << endl;
+    setColor(GRAY);
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Enter your choice: ";
+    setColor(GRAY);
+    
+    int choice;
+    cin >> choice;
+    cin.ignore();
+    
+    switch(choice) {
+        case 1: {
+            printHeader("CREATE SNAPSHOT");
+            setColor(WHITE);
+            cout << "Enter description (or press Enter to skip): ";
+            setColor(GRAY);
+            string desc;
+            getline(cin, desc);
+            
+            int versionId = versionManager.createSnapshot(editor, desc);
+            printSuccess("Snapshot " + to_string(versionId) + " created successfully!");
+            break;
+        }
+        
+        case 2: {
+            printHeader("ALL SNAPSHOTS");
+            versionManager.listVersions();
+            break;
+        }
+        
+        case 3: {
+            printHeader("RESTORE SNAPSHOT");
+            versionManager.listVersions();
+            
+            setColor(WHITE);
+            cout << "\nEnter Version ID to restore (0 to cancel): ";
+            setColor(GRAY);
+            int versionId;
+            cin >> versionId;
+            cin.ignore();
+            
+            if (versionId != 0) {
+                if (versionManager.restoreVersion(editor, versionId)) {
+                    printSuccess("Successfully restored to Version " + to_string(versionId));
+                }
+            } else {
+                printInfo("Restore cancelled.");
+            }
+            break;
+        }
+        
+        case 4: {
+            printHeader("RESTORE PREVIOUS SNAPSHOT");
+            if (versionManager.restorePreviousVersion(editor)) {
+                printSuccess("Moved to previous version!");
+            } else {
+                printError("No previous version available!");
+            }
+            break;
+        }
+        
+        case 5: {
+            printHeader("RESTORE NEXT SNAPSHOT");
+            if (versionManager.restoreNextVersion(editor)) {
+                printSuccess("Moved to next version!");
+            } else {
+                printError("No next version available!");
+            }
+            break;
+        }
+        
+        case 6: {
+            printHeader("DELETE SNAPSHOT");
+            versionManager.listVersions();
+            
+            setColor(WHITE);
+            cout << "\nEnter Version ID to delete (0 to cancel): ";
+            setColor(GRAY);
+            int versionId;
+            cin >> versionId;
+            cin.ignore();
+            
+            if (versionId != 0) {
+                versionManager.deleteVersion(versionId);
+            } else {
+                printInfo("Delete cancelled.");
+            }
+            break;
+        }
+        
+        case 7: {
+            printHeader("EXPORT SNAPSHOT");
+            versionManager.listVersions();
+            
+            setColor(WHITE);
+            cout << "\nEnter Version ID to export: ";
+            setColor(GRAY);
+            int versionId;
+            cin >> versionId;
+            cin.ignore();
+            
+            setColor(WHITE);
+            cout << "Enter filename to export: ";
+            setColor(GRAY);
+            string filename;
+            getline(cin, filename);
+            
+            versionManager.exportVersion(versionId, filename);
+            break;
+        }
+        
+        case 8: {
+            printHeader("CLEAR ALL SNAPSHOTS");
+            setColor(RED);
+            cout << "\nWARNING: This will delete ALL snapshots permanently!" << endl;
+            setColor(WHITE);
+            cout << "Are you sure? (y/n): ";
+            setColor(GRAY);
+            char confirm;
+            cin >> confirm;
+            cin.ignore();
+            
+            if (confirm == 'y' || confirm == 'Y') {
+                versionManager.clearAllVersions();
+                printSuccess("All snapshots cleared!");
+            } else {
+                printInfo("Operation cancelled.");
+            }
+            break;
+        }
+        
+        case 0:
+            return;
+            
+        default:
+            printError("Invalid choice!");
+    }
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+// ============================================================================
+// BASIC OPERATIONS
+// ============================================================================
+
+void handleInsert() {
+    printHeader("INSERT TEXT");
+    
+    setColor(CYAN);
+    cout << "Current text length: ";
+    setColor(YELLOW);
+    cout << editor.getLength() << " characters" << endl;
+    setColor(GRAY);
+    
+    setColor(WHITE);
+    cout << "\nEnter position to insert at: ";
+    setColor(GRAY);
+    size_t pos;
+    cin >> pos;
+    cin.ignore();
+    
+    setColor(WHITE);
+    cout << "Enter text to insert: ";
+    setColor(GRAY);
+    string text;
+    getline(cin, text);
+    
+    editor.insert(pos, text);
+    printSuccess("Text inserted successfully!");
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+void handleDelete() {
+    printHeader("DELETE TEXT");
+    
+    setColor(CYAN);
+    cout << "Current text:\n";
+    setColor(YELLOW);
+    cout << editor.getText() << endl;
+    setColor(GRAY);
+    
+    setColor(WHITE);
+    cout << "\nEnter position to delete from: ";
+    setColor(GRAY);
+    size_t pos;
+    cin >> pos;
+    cin.ignore();
+    
+    setColor(WHITE);
+    cout << "Enter length to delete: ";
+    setColor(GRAY);
+    size_t length;
+    cin >> length;
+    cin.ignore();
+    
+    editor.deleteText(pos, length);
+    printSuccess("Text deleted successfully!");
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+void handleReplace() {
+    printHeader("REPLACE TEXT");
+    
+    setColor(CYAN);
+    cout << "Current text:\n";
+    setColor(YELLOW);
+    cout << editor.getText() << endl;
+    setColor(GRAY);
+    
+    setColor(WHITE);
+    cout << "\nEnter position to replace from: ";
+    setColor(GRAY);
+    size_t pos;
+    cin >> pos;
+    cin.ignore();
+    
+    setColor(WHITE);
+    cout << "Enter length to replace: ";
+    setColor(GRAY);
+    size_t length;
+    cin >> length;
+    cin.ignore();
+    
+    setColor(WHITE);
+    cout << "Enter new text: ";
+    setColor(GRAY);
+    string text;
+    getline(cin, text);
+    
+    editor.replace(pos, length, text);
+    printSuccess("Text replaced successfully!");
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+void handleUndo() {
+    printHeader("UNDO OPERATION");
+    
+    if (editor.undo()) {
+        printSuccess("Undo successful!");
+        setColor(CYAN);
+        cout << "\nCurrent text:\n";
+        setColor(YELLOW);
+        cout << editor.getText() << endl;
+        setColor(GRAY);
+    } else {
+        printError("Nothing to undo!");
+    }
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+void handleRedo() {
+    printHeader("REDO OPERATION");
+    
+    if (editor.redo()) {
+        printSuccess("Redo successful!");
+        setColor(CYAN);
+        cout << "\nCurrent text:\n";
+        setColor(YELLOW);
+        cout << editor.getText() << endl;
+        setColor(GRAY);
+    } else {
+        printError("Nothing to redo!");
+    }
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+// ============================================================================
+// SEARCH OPERATIONS
+// ============================================================================
+
+void handleSearch() {
+    printHeader("SEARCH TEXT (Rolling Hash)");
+    
+    setColor(CYAN);
+    cout << "Current text:\n";
+    setColor(YELLOW);
+    cout << editor.getText() << endl;
+    setColor(GRAY);
+    
+    setColor(WHITE);
+    cout << "\nEnter pattern to search: ";
+    setColor(GRAY);
+    string pattern;
+    getline(cin, pattern);
+    
+    vector<size_t> results = editor.search(pattern);
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(CYAN);
+    cout << "SEARCH RESULTS" << endl;
+    printSeparator('-', 70);
+    
+    if (results.empty()) {
+        printError("No matches found!");
+    } else {
+        printSuccess("Found " + to_string(results.size()) + " occurrence(s)");
+        
+        setColor(CYAN);
+        cout << "\nPositions: ";
+        setColor(YELLOW);
+        for (size_t pos : results) {
+            cout << pos << " ";
+        }
+        cout << endl;
+        setColor(GRAY);
+    }
+    
+    searchHistory.addSearch(pattern, results.size());
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+void handleAdvancedSearch() {
+    printHeader("ADVANCED SEARCH (KMP/Boyer-Moore)");
+    
+    setColor(CYAN);
+    cout << "Current text:\n";
+    setColor(YELLOW);
+    cout << editor.getText() << endl;
+    setColor(GRAY);
+    
+    setColor(WHITE);
+    cout << "\nEnter pattern to search: ";
+    setColor(GRAY);
+    string pattern;
+    getline(cin, pattern);
     
     SearchOptions options;
-    options.caseSensitive = false;
     
-    vector<SearchResult> results = searchEngine.search(text, "hello", options);
+    setColor(WHITE);
+    cout << "\nCase sensitive? (y/n): ";
+    setColor(GRAY);
+    char choice;
+    cin >> choice;
+    options.caseSensitive = (choice == 'y' || choice == 'Y');
     
-    cout << "Searching for 'hello' (case insensitive):\n";
-    cout << "Found " << results.size() << " matches:\n";
+    setColor(WHITE);
+    cout << "Whole word only? (y/n): ";
+    setColor(GRAY);
+    cin >> choice;
+    options.wholeWord = (choice == 'y' || choice == 'Y');
     
-    for (const auto& result : results) {
-        cout << "  Position " << result.position 
-             << " (Line " << result.lineNumber 
-             << ", Col " << result.columnNumber << "): "
-             << result.matchedText << "\n";
+    setColor(WHITE);
+    cout << "Context lines (0-5): ";
+    setColor(GRAY);
+    cin >> options.contextLines;
+    cin.ignore();
+    
+    vector<SearchResult> results = searchEngine.search(editor.getText(), pattern, options);
+    
+    cout << "\n";
+    printSeparator('=', 70);
+    setColor(CYAN);
+    cout << "SEARCH RESULTS" << endl;
+    printSeparator('=', 70);
+    
+    if (results.empty()) {
+        printError("No matches found!");
+    } else {
+        printSuccess("Found " + to_string(results.size()) + " occurrence(s)");
+        
+        for (const auto& result : results) {
+            cout << "\n";
+            printSeparator('-', 70);
+            setColor(YELLOW);
+            cout << "Match at position " << result.position 
+                 << " (Line " << result.line << ", Col " << result.column << ")" << endl;
+            setColor(CYAN);
+            cout << "Context:" << endl;
+            setColor(GRAY);
+            cout << result.context << endl;
+        }
     }
     
-    string testText = "cat dog cat bird cat";
-    cout << "\nOriginal: " << testText << "\n";
+    searchHistory.addSearch(pattern, results.size());
     
-    int replaced = searchEngine.searchAndReplace(testText, "cat", "tiger", options);
-    cout << "After replacing 'cat' with 'tiger': " << testText << "\n";
-    cout << "Replaced " << replaced << " occurrences\n";
+    cout << "\n";
+    printSeparator('=', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
 }
 
-void testOldHistory() {
-    cout << "\n===== Testing Old History System =====\n";
+void handleSearchAndReplace() {
+    printHeader("SEARCH AND REPLACE");
     
-    SimpleVersionHistory oldHistory;
+    setColor(CYAN);
+    cout << "Current text:\n";
+    setColor(YELLOW);
+    cout << editor.getText() << endl;
+    setColor(GRAY);
     
-    auto v1 = make_shared<SimpleVersion>("First version", 1, "Version 1");
-    oldHistory.addVersion(v1);
+    setColor(WHITE);
+    cout << "\nEnter pattern to search: ";
+    setColor(GRAY);
+    string pattern;
+    getline(cin, pattern);
     
-    auto v2 = make_shared<SimpleVersion>("Second version", 2, "Version 2");
-    oldHistory.addVersion(v2);
+    setColor(WHITE);
+    cout << "Enter replacement text: ";
+    setColor(GRAY);
+    string replacement;
+    getline(cin, replacement);
     
-    auto v3 = make_shared<SimpleVersion>("Third version", 3, "Version 3");
-    oldHistory.addVersion(v3);
+    int count = editor.searchAndReplace(pattern, replacement);
     
-    cout << "Total versions: " << oldHistory.getCount() << "\n";
-    cout << "Current version: " << oldHistory.getCurrentVersion()->getDescription() << "\n";
+    printSuccess("Replaced " + to_string(count) + " occurrence(s)");
     
-    cout << "\nGoing back...\n";
-    auto prev = oldHistory.getPreviousVersion();
-    if (prev) {
-        cout << "Previous version: " << prev->getDescription() << "\n";
+    setColor(CYAN);
+    cout << "\nNew text:\n";
+    setColor(YELLOW);
+    cout << editor.getText() << endl;
+    setColor(GRAY);
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+// ============================================================================
+// FILE OPERATIONS
+// ============================================================================
+
+void handleLoadFile() {
+    printHeader("LOAD FROM FILE");
+    
+    setColor(WHITE);
+    cout << "Enter filename to load: ";
+    setColor(GRAY);
+    string filename;
+    getline(cin, filename);
+    
+    if (editor.loadFromFile(filename)) {
+        printSuccess("File loaded successfully!");
+        setColor(CYAN);
+        cout << "Text length: ";
+        setColor(YELLOW);
+        cout << editor.getLength() << " characters" << endl;
+        
+        setColor(CYAN);
+        cout << "\nPreview (first 200 chars):" << endl;
+        printSeparator('-', 70);
+        setColor(GRAY);
+        string text = editor.getText();
+        cout << text.substr(0, min((size_t)200, text.length())) << endl;
+        printSeparator('-', 70);
+    } else {
+        printError("Failed to load file!");
     }
     
-    cout << "\nAll versions:\n";
-    auto allVersions = oldHistory.getAllVersions();
-    for (const auto& v : allVersions) {
-        cout << "  v" << v->getVersionNumber() << ": " << v->getDescription() 
-             << " (" << v->getTimestamp() << ")\n";
-    }
+    cout << "\n";
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
 }
 
-void displayMenu() {
-    cout << "\n========================================\n";
-    cout << "   Text Editor Testing Menu\n";
-    cout << "========================================\n";
-    cout << "1. Test Persistent Rope\n";
-    cout << "2. Test Version History\n";
-    cout << "3. Test Text Editor (Undo/Redo)\n";
-    cout << "4. Test Advanced Search\n";
-    cout << "5. Test Old History System\n";
-    cout << "6. Run All Tests\n";
-    cout << "0. Exit\n";
-    cout << "========================================\n";
-    cout << "Enter choice: ";
-}
-
-int main() {
-    int choice;
+void handleSaveFile() {
+    printHeader("SAVE TO FILE");
     
-    while (true) {
-        displayMenu();
+    if (!editor.getFilename().empty()) {
+        setColor(CYAN);
+        cout << "Current filename: ";
+        setColor(YELLOW);
+        cout << editor.getFilename() << endl;
+        setColor(WHITE);
+        cout << "\nSave to same file? (y/n): ";
+        setColor(GRAY);
+        char choice;
         cin >> choice;
         cin.ignore();
         
-        switch (choice) {
-            case 1:
-                testPersistentRope();
-                break;
-            case 2:
-                testVersionHistory();
-                break;
-            case 3:
-                testTextEditor();
-                break;
-            case 4:
-                testAdvancedSearch();
-                break;
-            case 5:
-                testOldHistory();
-                break;
-            case 6:
-                testPersistentRope();
-                testVersionHistory();
-                testTextEditor();
-                testAdvancedSearch();
-                testOldHistory();
-                break;
-            case 0:
-                cout << "\nExiting program. Goodbye!\n";
-                return 0;
-            default:
-                cout << "\nInvalid choice! Please try again.\n";
+        if (choice == 'y' || choice == 'Y') {
+            if (editor.saveToFile()) {
+                printSuccess("File saved successfully!");
+            } else {
+                printError("Failed to save file!");
+            }
+            cout << "\n";
+            setColor(WHITE);
+            cout << "Press any key to continue...";
+            setColor(GRAY);
+            _getch();
+            return;
+        }
+    }
+    
+    setColor(WHITE);
+    cout << "Enter filename to save: ";
+    setColor(GRAY);
+    string filename;
+    getline(cin, filename);
+    
+    if (editor.saveToFile(filename)) {
+        printSuccess("File saved successfully!");
+    } else {
+        printError("Failed to save file!");
+    }
+    
+    cout << "\n";
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+// ============================================================================
+// VERSION CONTROL (Your existing History system)
+// ============================================================================
+
+void handleVersionControl() {
+    printHeader("VERSION CONTROL (History System)");
+    
+    setColor(YELLOW);
+    cout << "\n  [1] Create Version" << endl;
+    cout << "  [2] List All Versions" << endl;
+    cout << "  [3] Go to Previous Version" << endl;
+    cout << "  [4] Go to Next Version" << endl;
+    cout << "  [5] Clear Version History" << endl;
+    setColor(RED);
+    cout << "  [0] Back to Main Menu" << endl;
+    setColor(GRAY);
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Enter your choice: ";
+    setColor(GRAY);
+    
+    int choice;
+    cin >> choice;
+    cin.ignore();
+    
+    switch(choice) {
+        case 1: {
+            printHeader("CREATE VERSION");
+            setColor(WHITE);
+            cout << "Enter version description: ";
+            setColor(GRAY);
+            string desc;
+            getline(cin, desc);
+            
+            auto version = make_shared<Version>(editor.getText(), 
+                                               versionHistory.getCount() + 1, 
+                                               desc);
+            versionHistory.addVersion(version);
+            printSuccess("Version created successfully!");
+            break;
         }
         
-        cout << "\n\nPress Enter to continue...";
-        cin.get();
+        case 2: {
+            printHeader("ALL VERSIONS");
+            auto versions = versionHistory.getAllVersions();
+            if (versions.empty()) {
+                printInfo("No versions saved.");
+            } else {
+                for (const auto& ver : versions) {
+                    cout << "\n";
+                    printSeparator('-', 70);
+                    setColor(YELLOW);
+                    cout << "Version " << ver->getVersionNumber() << endl;
+                    setColor(CYAN);
+                    cout << "Description: ";
+                    setColor(GRAY);
+                    cout << ver->getDescription() << endl;
+                    setColor(CYAN);
+                    cout << "Timestamp: ";
+                    setColor(GRAY);
+                    cout << ver->getTimestamp() << endl;
+                    setColor(CYAN);
+                    cout << "Content length: ";
+                    setColor(YELLOW);
+                    cout << ver->getContent().length() << " chars" << endl;
+                    setColor(GRAY);
+                }
+                printSeparator('-', 70);
+            }
+            break;
+        }
+        
+        case 3: {
+            printHeader("GO TO PREVIOUS VERSION");
+            auto prev = versionHistory.getPreviousVersion();
+            if (prev) {
+                editor.clear();
+                editor.insert(0, prev->getContent());
+                printSuccess("Moved to previous version!");
+            } else {
+                printError("No previous version available!");
+            }
+            break;
+        }
+        
+        case 4: {
+            printHeader("GO TO NEXT VERSION");
+            auto next = versionHistory.getNextVersion();
+            if (next) {
+                editor.clear();
+                editor.insert(0, next->getContent());
+                printSuccess("Moved to next version!");
+            } else {
+                printError("No next version available!");
+            }
+            break;
+        }
+        
+        case 5: {
+            printHeader("CLEAR VERSION HISTORY");
+            setColor(RED);
+            cout << "\nWARNING: This will delete ALL version history!" << endl;
+            setColor(WHITE);
+            cout << "Are you sure? (y/n): ";
+            setColor(GRAY);
+            char confirm;
+            cin >> confirm;
+            if (confirm == 'y' || confirm == 'Y') {
+                versionHistory.clear();
+                printSuccess("Version history cleared!");
+            } else {
+                printInfo("Operation cancelled.");
+            }
+            break;
+        }
+        
+        case 0:
+            return;
+            
+        default:
+            printError("Invalid choice!");
     }
+    
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(WHITE);
+    cout << "Press any key to continue...";
+    setColor(GRAY);
+    _getch();
+}
+
+// ============================================================================
+// MAIN MENU
+// ============================================================================
+
+void displayMenu() {
+    system("cls");
+    
+    // Title
+    setColor(CYAN);
+    printSeparator('=', 70);
+    setColor(YELLOW);
+    int padding = 10;
+    cout << string(padding, ' ') << "ADVANCED TEXT EDITOR WITH SNAPSHOTS" << endl;
+    setColor(CYAN);
+    printSeparator('=', 70);
+    setColor(GRAY);
+    
+    // Menu options
+    cout << "\n";
+    setColor(GREEN);
+    cout << "  BASIC OPERATIONS:" << endl;
+    setColor(GRAY);
+    cout << "    [1]  Insert Text" << endl;
+    cout << "    [2]  Delete Text" << endl;
+    cout << "    [3]  Replace Text" << endl;
+    cout << "    [4]  Undo" << endl;
+    cout << "    [5]  Redo" << endl;
+    
+    cout << "\n";
+    setColor(MAGENTA);
+    cout << "  SEARCH OPERATIONS:" << endl;
+    setColor(GRAY);
+    cout << "    [6]  Basic Search (Rolling Hash)" << endl;
+    cout << "    [7]  Advanced Search (KMP/Boyer-Moore)" << endl;
+    cout << "    [8]  Search and Replace" << endl;
+    cout << "    [14] Show Search History" << endl;
+    
+    cout << "\n";
+    setColor(BLUE);
+    cout << "  FILE OPERATIONS:" << endl;
+    setColor(GRAY);
+    cout << "    [9]  Load from File" << endl;
+    cout << "    [10] Save to File" << endl;
+    
+    cout << "\n";
+    setColor(YELLOW);
+    cout << "  VERSION MANAGEMENT:" << endl;
+    setColor(GRAY);
+    cout << "    [11] Version Control (History System)" << endl;
+    setColor(GREEN);
+    cout << "    [12] SNAPSHOT MANAGEMENT (NEW)" << endl;
+    setColor(GRAY);
+    
+    cout << "\n";
+    setColor(CYAN);
+    cout << "  OTHER:" << endl;
+    setColor(GRAY);
+    cout << "    [13] Display Current Text" << endl;
+    setColor(RED);
+    cout << "    [0]  Exit" << endl;
+    setColor(GRAY);
+    
+    // Status bar
+    cout << "\n";
+    printSeparator('-', 70);
+    setColor(CYAN);
+    cout << "  STATUS:" << endl;
+    setColor(GRAY);
+    cout << "    Text Length: ";
+    setColor(YELLOW);
+    cout << editor.getLength() << " chars" << endl;
+    setColor(GRAY);
+    cout << "    Can Undo: ";
+    setColor(editor.canUndo() ? GREEN : RED);
+    cout << (editor.canUndo() ? "Yes" : "No") << endl;
+    setColor(GRAY);
+    cout << "    Can Redo: ";
+    setColor(editor.canRedo() ? GREEN : RED);
+    cout << (editor.canRedo() ? "Yes" : "No") << endl;
+    setColor(GRAY);
+    cout << "    Snapshots: ";
+    setColor(YELLOW);
+    cout << versionManager.getVersionCount() << endl;
+    setColor(GRAY);
+    cout << "    Versions: ";
+    setColor(YELLOW);
+    cout << versionHistory.getCount() << endl;
+    setColor(GRAY);
+    printSeparator('-', 70);
+}
+
+// ============================================================================
+// MAIN FUNCTION
+// ============================================================================
+
+int main() {
+    // Welcome screen
+    system("cls");
+    setColor(CYAN);
+    printSeparator('=', 70);
+    setColor(YELLOW);
+    cout << "\n" << string(22, ' ') << "WELCOME TO" << endl;
+    cout << string(12, ' ') << "ADVANCED TEXT EDITOR WITH SNAPSHOTS" << endl << endl;
+    setColor(CYAN);
+    printSeparator('=', 70);
+    setColor(GREEN);
+    cout << "\n  Features:" << endl;
+    setColor(GRAY);
+    cout << "    - Undo/Redo with Command Pattern" << endl;
+    cout << "    - Advanced Search (Rolling Hash, KMP, Boyer-Moore)" << endl;
+    cout << "    - Snapshot Management (Doubly Linked List)" << endl;
+    cout << "    - Version Control System" << endl;
+    cout << "    - File Operations" << endl;
+    setColor(CYAN);
+    cout << "\n";
+    printSeparator('=', 70);
+    setColor(WHITE);
+    cout << "\nPress any key to start...";
+    setColor(GRAY);
+    _getch();
+    
+    int choice;
+    
+    do {
+        displayMenu();
+        setColor(WHITE);
+        cout << "\nEnter your choice: ";
+        setColor(GRAY);
+        cin >> choice;
+        cin.ignore();
+        
+        switch(choice) {
+            case 1:
+                handleInsert();
+                break;
+            case 2:
+                handleDelete();
+                break;
+            case 3:
+                handleReplace();
+                break;
+            case 4:
+                handleUndo();
+                break;
+            case 5:
+                handleRedo();
+                break;
+            case 6:
+                handleSearch();
+                break;
+            case 7:
+                handleAdvancedSearch();
+                break;
+            case 8:
+                handleSearchAndReplace();
+                break;
+            case 9:
+                handleLoadFile();
+                break;
+            case 10:
+                handleSaveFile();
+                break;
+            case 11:
+                handleVersionControl();
+                break;
+            case 12:
+                handleSnapshots();
+                break;
+            case 13: {
+                printHeader("CURRENT TEXT");
+                setColor(CYAN);
+                cout << "Length: ";
+                setColor(YELLOW);
+                cout << editor.getLength() << " characters" << endl;
+                setColor(GRAY);
+                cout << "\n";
+                printSeparator('-', 70);
+                setColor(YELLOW);
+                cout << editor.getText() << endl;
+                setColor(GRAY);
+                printSeparator('-', 70);
+                cout << "\n";
+                setColor(WHITE);
+                cout << "Press any key to continue...";
+                setColor(GRAY);
+                _getch();
+                break;
+            }
+            case 14: {
+                printHeader("SEARCH HISTORY");
+                searchHistory.displayHistory();
+                cout << "\n";
+                printSeparator('-', 70);
+                setColor(WHITE);
+                cout << "Press any key to continue...";
+                setColor(GRAY);
+                _getch();
+                break;
+            }
+            case 0:
+                system("cls");
+                setColor(CYAN);
+                printSeparator('=', 70);
+                setColor(YELLOW);
+                cout << "\n" << string(20, ' ') << "THANK YOU FOR USING" << endl;
+                cout << string(12, ' ') << "ADVANCED TEXT EDITOR WITH SNAPSHOTS" << endl << endl;
+                setColor(CYAN);
+                printSeparator('=', 70);
+                setColor(GREEN);
+                cout << "\n  Goodbye! See you again soon." << endl;
+                setColor(GRAY);
+                cout << "\n";
+                break;
+            default:
+                printError("Invalid choice! Please try again.");
+                cout << "\n";
+                setColor(WHITE);
+                cout << "Press any key to continue...";
+                setColor(GRAY);
+                _getch();
+        }
+        
+    } while(choice != 0);
     
     return 0;
 }
