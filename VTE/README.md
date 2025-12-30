@@ -1,0 +1,5 @@
+# Versioned-Text-Editor-with-Undo-Redo-and-Pattern-Search-
+This project implements a console-based text editor featuring efficient text manipulation, version history, and high-performance pattern search. It is designed as a miniature model of modern editors like VS Code, Sublime Text, and Notepad++, demonstrating how core editor features can be built using fundamental data structures and algorithms.
+use this command to run this project 
+g++ -o editor main.cpp Buffer.cpp History.cpp -std=c++11
+./editor
