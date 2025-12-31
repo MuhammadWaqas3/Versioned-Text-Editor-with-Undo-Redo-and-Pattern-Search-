@@ -47,7 +47,7 @@ private:
     VersionNode* current;
     int versionCount;
     
-    const string VERSION_FILE = "editor_version_history.txt";
+    const string VERSION_FILE = "data/editor_version_history.txt";
     
     void autoSave();
     
