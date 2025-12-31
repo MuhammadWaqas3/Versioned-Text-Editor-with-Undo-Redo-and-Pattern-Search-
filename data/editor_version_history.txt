@@ -1,38 +1,11 @@
 EDITOR_VERSIONS_V1
-1
-1
-1083
-1|2025-12-31 20:36:08|data/../data/sample_data.txt|dsfsd adfa|1016|Welcome to the Text Editor!
-==========================
-
-This is a sample document to test the text editor functionality.
-
-Features:
-- Insert, delete, and replace text
-- Undo and redo operations
-- Pattern search using Rabin-Karp algorithm
-- Search and replace functionality
-- File loading and saving
-- Chunked buffer for efficient text storage
-
-Sample Content for Testing:
-----------------------------
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-Programming is fun!
-Data structures are important for efficient algorithms.
-The quick brown fox jumps over the lazy dog.
-
-Test Cases:
-1. Search for "the" - should find multiple occurrences
-2. Replace "the" with "a" - test search and replace
-3. Insert text at position 0 - test insertion
-4. Delete text from middle - test deletion
-5. Undo and redo operations - test command pattern
-
-Numbers for testing: 12345 67890
-Special characters: !@#$%^&*()_+-=[]{}|;:',.<>?/
-
-End of sample document.
+4
+2
+84
+1|2025-12-31 22:40:23|data/../data/ahsan.txt|version-1 only name|16|my name is waqas
+92
+2|2025-12-31 22:40:44|data/../data/ahsan.txt|version-2|34|my name is waqasi am 11 years old 
+106
+3|2025-12-31 22:41:15|data/../data/ahsan.txt|version-3|48|my name is waqasi am 11 years old I go to school
+139
+4|2025-12-31 22:41:52|data/../data/ahsan.txt|version-4-|80|my name is waqasi am 11 years old I go to schoolI will become computer scientist
