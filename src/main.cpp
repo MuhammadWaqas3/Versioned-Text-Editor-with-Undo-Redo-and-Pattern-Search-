@@ -1171,6 +1171,12 @@ void printInfo(const string& msg) {
     setColor(GRAY);
 }
 
+//
+
+// void ensureDataFolderExists() {
+//     CreateDirectory("../data", NULL); // Creates data folder in parent directory
+// }
+
 // Function declarations
 void displayMenu();
 void handleInsert();
@@ -1681,17 +1687,38 @@ void handleSearchAndReplace() {
 // FILE OPERATIONS
 // ============================================================================
 
+// ============================================================================
+// FILE OPERATIONS (UPDATED)
+// ============================================================================
+
 void handleLoadFile() {
     printHeader("LOAD FROM FILE");
     
+    setColor(CYAN);
+    cout << "Files are loaded from the 'data' folder" << endl;
+    printSeparator('-', 70);
+    setColor(GRAY);
+    
     setColor(WHITE);
-    cout << "Enter filename to load: ";
+    cout << "\nEnter filename (e.g., sample_data.txt): ";
     setColor(GRAY);
     string filename;
     getline(cin, filename);
     
-    if (editor.loadFromFile(filename)) {
+    // Add ../data/ prefix if not already present
+    string filepath = filename;
+    if (filepath.find("../data/") == string::npos && 
+        filepath.find("data/") == string::npos &&
+        filepath.find(":\\") == string::npos) {  // Not an absolute path
+        filepath = "../data/" + filename;
+    }
+    
+    if (editor.loadFromFile(filepath)) {
         printSuccess("File loaded successfully!");
+        setColor(CYAN);
+        cout << "File: ";
+        setColor(YELLOW);
+        cout << filename << endl;
         setColor(CYAN);
         cout << "Text length: ";
         setColor(YELLOW);
@@ -1703,9 +1730,16 @@ void handleLoadFile() {
         setColor(GRAY);
         string text = editor.getText();
         cout << text.substr(0, min((size_t)200, text.length())) << endl;
+        if (text.length() > 200) {
+            setColor(DARK_GRAY);
+            cout << "... (" << (text.length() - 200) << " more characters)" << endl;
+        }
         printSeparator('-', 70);
     } else {
         printError("Failed to load file!");
+        setColor(DARK_GRAY);
+        cout << "Make sure the file exists in the 'data' folder." << endl;
+        setColor(GRAY);
     }
     
     cout << "\n";
@@ -1718,11 +1752,25 @@ void handleLoadFile() {
 void handleSaveFile() {
     printHeader("SAVE TO FILE");
     
+    setColor(CYAN);
+    cout << "Files are saved to the 'data' folder" << endl;
+    printSeparator('-', 70);
+    setColor(GRAY);
+    
+    // Check if file already has a name
     if (!editor.getFilename().empty()) {
         setColor(CYAN);
         cout << "Current filename: ";
         setColor(YELLOW);
-        cout << editor.getFilename() << endl;
+        
+        // Extract just the filename from the full path
+        string currentFile = editor.getFilename();
+        size_t lastSlash = currentFile.find_last_of("/\\");
+        if (lastSlash != string::npos) {
+            currentFile = currentFile.substr(lastSlash + 1);
+        }
+        
+        cout << currentFile << endl;
         setColor(WHITE);
         cout << "\nSave to same file? (y/n): ";
         setColor(GRAY);
@@ -1733,6 +1781,11 @@ void handleSaveFile() {
         if (choice == 'y' || choice == 'Y') {
             if (editor.saveToFile()) {
                 printSuccess("File saved successfully!");
+                setColor(CYAN);
+                cout << "Saved to: ";
+                setColor(YELLOW);
+                cout << currentFile << endl;
+                setColor(GRAY);
             } else {
                 printError("Failed to save file!");
             }
@@ -1746,15 +1799,33 @@ void handleSaveFile() {
     }
     
     setColor(WHITE);
-    cout << "Enter filename to save: ";
+    cout << "\nEnter filename to save (e.g., myfile.txt): ";
     setColor(GRAY);
     string filename;
     getline(cin, filename);
     
-    if (editor.saveToFile(filename)) {
+    // Add ../data/ prefix if not already present
+    string filepath = filename;
+    if (filepath.find("../data/") == string::npos && 
+        filepath.find("data/") == string::npos &&
+        filepath.find(":\\") == string::npos) {  // Not an absolute path
+        filepath = "../data/" + filename;
+    }
+    
+    if (editor.saveToFile(filepath)) {
         printSuccess("File saved successfully!");
+        setColor(CYAN);
+        cout << "Saved to: ";
+        setColor(YELLOW);
+        cout << filename << endl;
+        setColor(CYAN);
+        cout << "Location: data/" << filename << endl;
+        setColor(GRAY);
     } else {
         printError("Failed to save file!");
+        setColor(DARK_GRAY);
+        cout << "Check if the 'data' folder exists and you have write permissions." << endl;
+        setColor(GRAY);
     }
     
     cout << "\n";
@@ -2019,6 +2090,9 @@ void displayMenu() {
 // ============================================================================
 
 int main() {
+
+ //ensureDataFolderExists();
+
     // Welcome screen
     system("cls");
     setColor(CYAN);

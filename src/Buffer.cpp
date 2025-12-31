@@ -3,8 +3,23 @@
 #include <sstream>
 #include <algorithm>
 #include <fstream>
+#include <sys/stat.h>
+#include <direct.h>  // For Windows _mkdir
 
 using namespace std;
+
+// Helper function to create data directory if it doesn't exist
+void ensureDataFolderExists() {
+    struct stat info;
+    if (stat("data", &info) != 0) {
+        // Directory doesn't exist, create it
+        #ifdef _WIN32
+            _mkdir("data");
+        #else
+            mkdir("data", 0755);
+        #endif
+    }
+}
 
 // ==================== TextBuffer Implementation ====================
 
@@ -321,20 +336,28 @@ int TextEditor::searchAndReplace(const string& pattern, const string& replacemen
 }
 
 bool TextEditor::loadFromFile(const string& filepath) {
-    ifstream file(filepath);
-    if (!file.is_open()) return false;
+    // Automatically add data/ prefix
+    string fullPath = addDataFolder(filepath);
+    
+    ifstream file(fullPath);
+    if (!file.is_open()) {
+        return false;
+    }
     
     stringstream ss;
     ss << file.rdbuf();
     buffer.setText(ss.str());
-    filename = filepath;
+    filename = fullPath;  // Store full path with data/
     modified = false;
     
     return true;
 }
 
 bool TextEditor::saveToFile(const string& filepath) {
-    string path = filepath.empty() ? filename : filepath;
+    // Ensure data folder exists
+    ensureDataFolderExists();
+    
+    string path = filepath.empty() ? filename : addDataFolder(filepath);
     if (path.empty()) return false;
     
     ofstream file(path);

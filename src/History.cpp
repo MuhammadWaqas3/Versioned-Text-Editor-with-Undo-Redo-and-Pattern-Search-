@@ -3,8 +3,22 @@
 #include <iostream>
 #include <sstream>
 #include <windows.h>
+#include <sys/stat.h>
+#include <direct.h>
 
 using namespace std;
+
+// Helper function to ensure data folder exists
+void ensureDataFolder() {
+    struct stat info;
+    if (stat("data", &info) != 0) {
+        #ifdef _WIN32
+            _mkdir("data");
+        #else
+            mkdir("data", 0755);
+        #endif
+    }
+}
 
 // ==================== Version Implementation ====================
 
@@ -53,6 +67,7 @@ shared_ptr<Version> Version::deserialize(const string& data) {
 
 VersionHistory::VersionHistory() 
     : head(nullptr), tail(nullptr), current(nullptr), versionCount(0) {
+    ensureDataFolder();  // Create data folder if needed
     loadFromFile();  // Auto-load on startup
 }
 
@@ -134,6 +149,7 @@ void VersionHistory::clear() {
     versionCount = 0;
     
     // Save empty state to file
+    ensureDataFolder();
     ofstream file(VERSION_FILE, ios::binary);
     if (file.is_open()) {
         file << "EDITOR_VERSIONS_V1" << endl;
@@ -144,7 +160,9 @@ void VersionHistory::clear() {
 }
 
 bool VersionHistory::saveToFile() {
-    cout << "[DEBUG] Saving " << versionCount << " versions to file..." << endl;
+    ensureDataFolder();  // Ensure data folder exists
+    
+    cout << "[DEBUG] Saving " << versionCount << " versions to " << VERSION_FILE << "..." << endl;
     
     ofstream file(VERSION_FILE, ios::binary);
     if (!file.is_open()) {
@@ -172,7 +190,7 @@ bool VersionHistory::saveToFile() {
     }
     
     file.close();
-    cout << "[DEBUG] Saved " << savedCount << " versions successfully!" << endl;
+    cout << "[DEBUG] Saved " << savedCount << " versions successfully to data folder!" << endl;
     return true;
 }
 
@@ -180,7 +198,7 @@ bool VersionHistory::loadFromFile() {
     ifstream file(VERSION_FILE, ios::binary);
     if (!file.is_open()) {
         // File doesn't exist yet - first run
-        cout << "[DEBUG] Version file not found - first run" << endl;
+        cout << "[DEBUG] Version file not found in data folder - first run" << endl;
         return false;
     }
     
@@ -196,7 +214,7 @@ bool VersionHistory::loadFromFile() {
     // Read metadata
     int count;
     file >> count;
-    cout << "[DEBUG] Loading " << count << " versions..." << endl;
+    cout << "[DEBUG] Loading " << count << " versions from data folder..." << endl;
     
     int currentNum;
     file >> currentNum;
@@ -259,7 +277,7 @@ bool VersionHistory::loadFromFile() {
     if (count > 0) {
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleTextAttribute(hConsole, 10);
-        cout << "[SUCCESS] Loaded " << versionCount << " version(s) from history." << endl;
+        cout << "[SUCCESS] Loaded " << versionCount << " version(s) from data folder." << endl;
         SetConsoleTextAttribute(hConsole, 7);
     }
     

@@ -1,12 +1,25 @@
-
 #include "VersionManager.h"
 #include <iostream>
 #include <sstream>
 #include <ctime>
 #include <iomanip>
 #include <windows.h>
+#include <sys/stat.h>
+#include <direct.h>
 
 using namespace std;
+
+// Helper function to ensure data folder exists
+void ensureDataFolderForVersions() {
+    struct stat info;
+    if (stat("data", &info) != 0) {
+        #ifdef _WIN32
+            _mkdir("data");
+        #else
+            mkdir("data", 0755);
+        #endif
+    }
+}
 
 // ==================== VersionSnapshot Implementation ====================
 
@@ -56,6 +69,7 @@ shared_ptr<VersionSnapshot> VersionSnapshot::deserialize(const string& data) {
 
 VersionManager::VersionManager() 
     : head(nullptr), tail(nullptr), current(nullptr), nextId(1) {
+    ensureDataFolderForVersions();  // Create data folder if needed
     loadFromFile();  // Auto-load on startup
 }
 
@@ -152,7 +166,7 @@ void VersionManager::listVersions() const {
     
     SetConsoleTextAttribute(hConsole, 11);
     cout << "\n" << string(90, '=') << endl;
-    cout << "                       SAVED SNAPSHOTS" << endl;
+    cout << "                       SAVED SNAPSHOTS (from data folder)" << endl;
     cout << string(90, '=') << endl;
     SetConsoleTextAttribute(hConsole, 7);
     
@@ -246,11 +260,15 @@ void VersionManager::exportVersion(int versionId, const string& filename) {
         return;
     }
     
-    ofstream file(filename);
+    // Export to data folder
+    ensureDataFolderForVersions();
+    string exportPath = addDataFolder(filename);
+    
+    ofstream file(exportPath);
     if (!file.is_open()) {
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleTextAttribute(hConsole, 12);
-        cout << "\n[ERROR] Could not create file: " << filename << endl;
+        cout << "\n[ERROR] Could not create file: " << exportPath << endl;
         SetConsoleTextAttribute(hConsole, 7);
         return;
     }
@@ -260,7 +278,7 @@ void VersionManager::exportVersion(int versionId, const string& filename) {
     
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, 10);
-    cout << "\n[SUCCESS] Version " << versionId << " exported to " << filename << endl;
+    cout << "\n[SUCCESS] Version " << versionId << " exported to " << exportPath << endl;
     SetConsoleTextAttribute(hConsole, 7);
 }
 
@@ -280,6 +298,8 @@ void VersionManager::clearAllVersions() {
 }
 
 bool VersionManager::saveToFile() {
+    ensureDataFolderForVersions();  // Ensure data folder exists
+    
     ofstream file(SNAPSHOT_FILE, ios::binary);
     if (!file.is_open()) {
         return false;
@@ -375,7 +395,7 @@ bool VersionManager::loadFromFile() {
     
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, 10);
-    cout << "\n[INFO] Loaded " << count << " snapshot(s) from file." << endl;
+    cout << "\n[INFO] Loaded " << count << " snapshot(s) from data folder." << endl;
     SetConsoleTextAttribute(hConsole, 7);
     
     return true;

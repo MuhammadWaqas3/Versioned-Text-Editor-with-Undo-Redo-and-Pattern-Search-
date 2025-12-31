@@ -156,6 +156,20 @@ public:
     string getDescription() const override;
 };
 
+// Helper function to add data/ prefix to filenames
+inline string addDataFolder(const string& filename) {
+    // If filename already starts with "data/" or is absolute path, return as is
+    if (filename.substr(0, 5) == "data/" || filename.substr(0, 5) == "data\\") {
+        return filename;
+    }
+    // Check if it's an absolute path (Windows: C:\ or Linux: /)
+    if ((filename.length() > 2 && filename[1] == ':') || filename[0] == '/') {
+        return filename;
+    }
+    // Add data/ prefix
+    return "data/" + filename;
+}
+
 // Main Editor class
 class TextEditor {
 private:
@@ -186,7 +200,7 @@ public:
     vector<size_t> search(const string& pattern) const;
     int searchAndReplace(const string& pattern, const string& replacement);
     
-    // File operations
+    // File operations - now automatically use data/ folder
     bool loadFromFile(const string& filepath);
     bool saveToFile(const string& filepath = "");
     

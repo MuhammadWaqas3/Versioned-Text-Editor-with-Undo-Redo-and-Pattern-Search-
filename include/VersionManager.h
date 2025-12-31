@@ -1,4 +1,3 @@
-
 #ifndef VERSION_MANAGER_H
 #define VERSION_MANAGER_H
 
@@ -53,8 +52,8 @@ private:
     
     map<int, SnapshotNode*> idToNode;
     
-    const string SNAPSHOT_FILE = "editor_snapshots.txt";
-    const string VERSION_FILE = "editor_versions.txt";
+    const string SNAPSHOT_FILE = "data/editor_snapshots.txt";
+    const string VERSION_FILE = "data/editor_version.txt";
     
     // Auto-save helper
     void autoSave();
@@ -84,4 +83,4 @@ public:
     bool loadFromFile();
 };
 
-#endif 
+#endif
