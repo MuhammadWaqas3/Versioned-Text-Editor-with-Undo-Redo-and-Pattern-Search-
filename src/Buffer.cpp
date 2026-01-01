@@ -166,7 +166,7 @@ long long SearchEngine::calculateHash(const string& str, int length) const {
     }
     return hash;
 }
-
+// char value = static_cast<unsigned char>(str[i])
 long long SearchEngine::recalculateHash(long long oldHash, char oldChar, char newChar, 
                                        long long pow, int length) const {
     long long newHash = (oldHash - (static_cast<unsigned char>(oldChar) * pow) % PRIME + PRIME) % PRIME;

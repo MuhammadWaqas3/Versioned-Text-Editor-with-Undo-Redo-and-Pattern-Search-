@@ -68,38 +68,7 @@ public:
     vector<SearchResult> search(const string& text, const string& pattern,
                                const SearchOptions& options = SearchOptions()) const;
     
-    // Find and highlight
-    string findAndHighlight(const string& text, const string& pattern,
-                           const string& highlightStart = ">>",
-                           const string& highlightEnd = "<<") const;
-    
-    // Replace operations
-    string replaceFirst(const string& text, const string& pattern,
-                       const string& replacement) const;
-    
-    string replaceAll(const string& text, const string& pattern,
-                     const string& replacement) const;
-    
-    int replaceAllInPlace(string& text, const string& pattern,
-                         const string& replacement) const;
-    
-    // Count occurrences
-    int countOccurrences(const string& text, const string& pattern) const;
-    
-    // Find with context
-    vector<SearchResult> findWithContext(const string& text, const string& pattern,
-                                        int contextLines = 2) const;
-    
-    // Multi-pattern search
-    vector<pair<string, vector<size_t>>> multiPatternSearch(
-        const string& text, const vector<string>& patterns) const;
-    
-    // Approximate matching (with edit distance)
-    vector<size_t> fuzzySearch(const string& text, const string& pattern,
-                               int maxDistance = 2) const;
-    
-    // Utility: Calculate edit distance
-    int editDistance(const string& s1, const string& s2) const;
+   
 };
 
 // Search history manager
