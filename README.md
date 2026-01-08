@@ -2,6 +2,11 @@
 
 A console-based text editor featuring advanced editing capabilities, version control, and multiple search algorithms. This project demonstrates practical applications of data structures and algorithms in text processing.
 
+compile command  : 
+
+g++ src/main.cpp src/Buffer.cpp src/History.cpp src/AdvancedSearch.cpp src/VersionManager.cpp -I include -o editor.exe
+
+
 ## 🎯 Features
 
 ### Core Features
